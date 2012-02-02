@@ -30,7 +30,9 @@ var jUri = function(){
         jUri.prevScroll = jUri.scroll || 0;
         jUri.scroll = scroll;
         window.onscroll = function(){ jUri.setScroll() };
-        document.getElementsByTagName('h1')[1].innerHTML = jUri.prevScroll;
+        
+        //Only for testing:
+        //document.getElementsByTagName('h1')[1].innerHTML = jUri.prevScroll;
     };
 
     this.setScroll();
