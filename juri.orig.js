@@ -30,9 +30,6 @@ var jUri = function(){
         jUri.prevScroll = jUri.scroll || 0;
         jUri.scroll = scroll;
         window.onscroll = function(){ jUri.setScroll() };
-        
-        //Only for testing:
-        //document.getElementsByTagName('h1')[1].innerHTML = jUri.prevScroll;
     };
 
     this.setScroll();
@@ -42,10 +39,6 @@ hashChangeEvent = function( prevHash, newHash ){
     this.old = prevHash || "#";
     this.new = newHash || "#";
     this.newLoc = window.location;
-    this.preventDefault = function(){
-        jUri.fn.pageScroll( jUri.prevScroll-1 );
-        jUri.setScroll();
-    };
 };
 
 jUri.prototype = {
@@ -292,26 +285,8 @@ jUri.prototype = {
     },
     
     
-    gotoanchor: function( hash, time, callback ){
-        if( this.anchorExists( hash ) ){
-            var anchor = this.fn.getAnchor( hash );
-            
-            var top = 0;
-            
-            if( anchor.offsetParent ){
-                do {
-                    top += anchor.offsetTop;
-                }while(anchor = anchor.offsetParent);
-            }
-            
-            !callback ? callback = function(){} : true;
-            
-            jUri.fn.pageScroll( top, callback );
-            
-            return true;
-        }
-        
-        return false;
+    animateToAnchorLinks: function( anchors ){
+    
     }
 };
 
