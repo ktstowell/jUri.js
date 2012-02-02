@@ -15,16 +15,17 @@ var jUri = function(){
             return setTimeout('jUri.setScroll()',1);
         }
         
-        var scroll = 0;
+        var scroll = 0,
+        D = document
         if( typeof window.pageYOffset == 'number' ) {
             //Netscape compliant
             var scroll = window.pageYOffset;
-        } else if( document.body.scrollTop ) {
+        } else if( D.body.scrollTop ) {
             //DOM compliant
-            var scroll = document.body.scrollTop;
-        } else if( document.documentElement.scrollTop ) {
+            var scroll = D.body.scrollTop;
+        } else if( D.documentElement.scrollTop ) {
             //IE6 standards compliant mode
-            var scroll = document.documentElement.scrollTop;
+            var scroll = D.documentElement.scrollTop;
         }
        
         jUri.prevScroll = jUri.scroll || 0;
@@ -80,32 +81,41 @@ jUri.prototype = {
            not working always
         */
         
-        pageScroll: function( to, callback ) {
+        pageScroll: function( to, pxEvTime ) {
             if( !document.body ){
-                return setTimeout('jUri.fn.pageScroll(' + to + ', ' + callback + ')',1);
+                return setTimeout('jUri.fn.pageScroll(' + to + ', ' + pxEvTime + ')',1);
             }
 
-            var pxLeft = Math.round( (jUri.prevScroll-to) *10)/10;
+            var pxLeft = Math.round( ((jUri.scroll)-to) *10)/10;
             
-            var pxEvTime = Math.round(pxLeft/25);
+            if(!pxEvTime || typeof pxEvTime == 'undefined' || pxEvTime === 'undefined' || pxEvTime % 1 !== 0 ){
+                //Pixels every time
+                var pxEvTime = Math.round(pxLeft/25);
+                if( Math.round(pxEvTime) === 0 ) pxEvTime = 1;
+            }
             
-            if( Math.round(pxEvTime) === 0 ) pxEvTime = 1;
+            //Get the window height
+            var w=window,d=document,
+            e=d.documentElement,
+            g=d.getElementsByTagName('body')[0],
+            y=w.innerHeight||e.clientHeight||g.clientHeight,
             
-            //alert(pxEvTime)
-            if( !( (pxLeft < 0 && pxLeft > -5) || (pxLeft > 0 && pxLeft < 5) ) ){
-                //alert(pxLeft);
-                //alert(pxEvTime);
-                if( pxEvTime < 0 ){
-	                window.scrollBy(0,-(pxEvTime));
-                }else{
-                    window.scrollBy(0,pxEvTime);
-                }
+            //Get the maxium scroll
+	        b= document.body,
+	        who= e.offsetHeight? e: b ,
+	        maxScroll = Math.max(who.scrollHeight,who.offsetHeight)-y;
+
+            if( !( (pxLeft < 0 && pxLeft > pxEvTime-1) || 
+                   (pxLeft > 0 && pxLeft < pxEvTime+1) )
+            && maxScroll != jUri.scroll ){
+            
+                window.scrollBy(0,-(pxEvTime));
 	
-	            scroll = setTimeout('jUri.fn.pageScroll(' + to + ', ' + callback + ')',1);
+	            scroll = setTimeout('jUri.fn.pageScroll(' + to + ', ' + pxEvTime + ')',1);
 	            jUri.setScroll();
+	            
             }else{
                 clearTimeout(scroll)
-                callback ? callback() : false;
                 jUri.setScroll();
             }
         },
@@ -113,7 +123,7 @@ jUri.prototype = {
 
         getAnchor: function( hash ) {
             if( !document.body ){
-                return setTimeout('jUri.fn.pageScroll(' + to +')', 1);
+                return setTimeout('jUri.fn.getAnchor(' + hash +')', 1);
             }
             
             if( !hash ){
@@ -285,9 +295,61 @@ jUri.prototype = {
     },
     
     
-    animateToAnchorLinks: function( anchors ){
-    
+    animateAnchorLinks: function( anchors ){
+        if( !document.body ){
+            return setTimeout('jUri.animateAnchorLinks("' + anchors + '")',1);
+        }
+
+        var a = [],
+        linkList = [],
+        links = document.getElementsByTagName('a');
+        
+        if( !anchors || typeof anchors == 'undefined' || anchors === 'undefined' ){
+            for( var e in links ){
+                if( links[e].name && links[e].name != '' ){
+                    a.push(links[e].name);
+                }
+            }
+        }else{
+            var splitted = anchors.replace(/\s/gim,'').split(','), 
+            anchor;
+            
+            for( var e in splitted ){
+                anchor = splitted[e];
+                a.push( jUri.fn.getAnchor( anchor ).name );
+            }
+        }
+        
+        //iterate the 'a' array and match all the links refering to each anchor
+        for( var i in a ){
+            for( var e in links ){
+                if( links[e].href && links[e].href != '' && links[e].href.match('#'+a[i]+'$') ){
+                    linkList.push( links[e] );
+                }
+            }
+        }
+        
+        //iterate the linkList and bind a click event to each link
+        for( var i in linkList ){
+            linkList[i].onclick = function(e){
+                //Disable default scrolling
+                e.preventDefault();
+                
+                var anchorName = this.href.split('#')[1],
+                anchor = jUri.fn.getAnchor( anchorName ),
+                top = 0;
+                
+                if( anchor.offsetParent ){
+                    do {
+                        top += anchor.offsetTop;
+                    }while(anchor = anchor.offsetParent);
+                }
+                jUri.fn.pageScroll( top );
+                
+            }
+        }
     }
+    
 };
 
 window.jUri = new jUri();
