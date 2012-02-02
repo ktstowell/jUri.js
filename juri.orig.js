@@ -8,12 +8,42 @@
 
 /**********************/
 
-var jUri = new Function(),
+var jUri = function(){
+    
+    this.setScroll = function(){
+        if( !document.body ){
+            return setTimeout('jUri.setScroll()',1);
+        }
+        
+        var scroll = 0;
+        if( typeof window.pageYOffset == 'number' ) {
+            //Netscape compliant
+            var scroll = window.pageYOffset;
+        } else if( document.body.scrollTop ) {
+            //DOM compliant
+            var scroll = document.body.scrollTop;
+        } else if( document.documentElement.scrollTop ) {
+            //IE6 standards compliant mode
+            var scroll = document.documentElement.scrollTop;
+        }
+       
+        jUri.prevScroll = jUri.scroll || 0;
+        jUri.scroll = scroll;
+        window.onscroll = function(){ jUri.setScroll() };
+        document.getElementsByTagName('h1')[1].innerHTML = jUri.prevScroll;
+    };
+
+    this.setScroll();
+},
 
 hashChangeEvent = function( prevHash, newHash ){
-    this.old = prevHash;
-    this.new = newHash;
+    this.old = prevHash || "#";
+    this.new = newHash || "#";
     this.newLoc = window.location;
+    this.preventDefault = function(){
+        jUri.fn.pageScroll( jUri.prevScroll-1 );
+        jUri.setScroll();
+    };
 };
 
 jUri.prototype = {
@@ -26,11 +56,87 @@ jUri.prototype = {
     get: window.location.search,
     
     fn: {
-        checkhash: function( str, callback ){
+        /* jUri.fn.checkhash();
+           USED BY jUri.hashchange() event
+        */
+        
+        checkhash: function( str, prevScroll, callback ){
             if( jUri.hash() != str ){
-                callback( new hashChangeEvent( str, jUri.hash() ) );
+                callback( new hashChangeEvent( str, jUri.hash(), prevScroll ) );
+                
+                var prevScroll = 0;
+                if( typeof window.pageYOffset == 'number' ) {
+                    //Netscape compliant
+                    scroll = window.pageYOffset;
+                } else if( document.body.scrollTop ) {
+                    //DOM compliant
+                    scroll = document.body.scrollTop;
+                } else if( document.documentElement.scrollTop ) {
+                    //IE6 standards compliant mode
+                    scroll = document.documentElement.scrollTop;
+                }
             }
-            setTimeout('jUri.fn.checkhash("' + jUri.hash() + '", ' + callback + ')', 1);
+            setTimeout('jUri.fn.checkhash("' + jUri.hash() + '", ' + prevScroll + ', ' + callback + ')', 1);
+        },
+        
+        
+        /* jUri.fn.pagescroll();
+           USED BY jUri.gotoanchor('name');
+           not working always
+        */
+        
+        pageScroll: function( to, callback ) {
+            if( !document.body ){
+                return setTimeout('jUri.fn.pageScroll(' + to + ', ' + callback + ')',1);
+            }
+
+            var pxLeft = Math.round( (jUri.prevScroll-to) *10)/10;
+            
+            var pxEvTime = Math.round(pxLeft/25);
+            
+            if( Math.round(pxEvTime) === 0 ) pxEvTime = 1;
+            
+            //alert(pxEvTime)
+            if( !( (pxLeft < 0 && pxLeft > -5) || (pxLeft > 0 && pxLeft < 5) ) ){
+                //alert(pxLeft);
+                //alert(pxEvTime);
+                if( pxEvTime < 0 ){
+	                window.scrollBy(0,-(pxEvTime));
+                }else{
+                    window.scrollBy(0,pxEvTime);
+                }
+	
+	            scroll = setTimeout('jUri.fn.pageScroll(' + to + ', ' + callback + ')',1);
+	            jUri.setScroll();
+            }else{
+                clearTimeout(scroll)
+                callback ? callback() : false;
+                jUri.setScroll();
+            }
+        },
+        
+
+        getAnchor: function( hash ) {
+            if( !document.body ){
+                return setTimeout('jUri.fn.pageScroll(' + to +')', 1);
+            }
+            
+            if( !hash ){
+                return null;
+            }
+            
+            if( hash.match(/^#/) ) hash = hash.replace(/^#/,'');
+            
+            var links = document.getElementsByTagName('a');
+            
+            for( var e in links ){
+                element = links[e];
+                if( element.name.replace(/^#/,'') === hash ){
+                    return element;
+                }
+            }
+            
+            return null;
         }
     },
     
@@ -69,7 +175,23 @@ jUri.prototype = {
     */
     
     hashchange: function( callback ){
-        jUri.fn.checkhash( jUri.hash(), callback );
+        if( !document.body ){
+            return setTimeout('jUri.hashchange(' + callback +')', 1);
+        }
+        
+        var scroll = 0;
+        if( typeof window.pageYOffset == 'number' ) {
+            //Netscape compliant
+            scroll = window.pageYOffset;
+        } else if( document.body.scrollTop ) {
+            //DOM compliant
+            scroll = document.body.scrollTop;
+        } else if( document.documentElement.scrollTop ) {
+            //IE6 standards compliant mode
+            scroll = document.documentElement.scrollTop;
+        }
+        
+        jUri.fn.checkhash( jUri.hash(), scroll, callback );
     },
     
     
@@ -130,7 +252,7 @@ jUri.prototype = {
     */
     
     redirect: function( uri, timeout ){
-        if( timeout ){
+        if( timeout && timeout % 1 === 0 ){
             setTimeout("window.location.href='" + uri + "'", timeout);
         }else{
             window.location.href = uri;
@@ -145,12 +267,49 @@ jUri.prototype = {
     */
     
     isFile: function( callback ){
-        if( this.pathname.match(/\.(html|htm|php|phtml|asp|shtml|cgi|jsp|pl)/i) ){
+        if( this.pathname.match(/\.(html|htm|php|phtml|asp|shtml|cgi|jsp|pl)$/i) ){
             callback ? callback() : false;
             return true;
         }else{
             return false;
         }
+    },
+    
+    
+    /* jUri.anchorExists('name');// returns true/false if there is an <a> tag in the document
+                                 // with this code: <a name="name"></a>
+    */
+    
+    anchorExists: function( hash ){
+        var anchor = this.fn.getAnchor( hash );
+        if( anchor ){
+           return true;
+        }
+        
+        return false
+    },
+    
+    
+    gotoanchor: function( hash, time, callback ){
+        if( this.anchorExists( hash ) ){
+            var anchor = this.fn.getAnchor( hash );
+            
+            var top = 0;
+            
+            if( anchor.offsetParent ){
+                do {
+                    top += anchor.offsetTop;
+                }while(anchor = anchor.offsetParent);
+            }
+            
+            !callback ? callback = function(){} : true;
+            
+            jUri.fn.pageScroll( top, callback );
+            
+            return true;
+        }
+        
+        return false;
     }
 };
 
