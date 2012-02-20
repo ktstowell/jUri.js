@@ -34,6 +34,11 @@ var jUri = function(){
     };
 
     this.setScroll();
+
+    if (!window.console) {
+        var log = window.opera ? window.opera.postError : alert;
+        window.console = { log: function(str) { log(str) } };
+    }
 },
 
 hashChangeEvent = function( prevHash, newHash ){
@@ -81,43 +86,11 @@ jUri.prototype = {
            not working always
         */
         
-        pageScroll: function( to, pxEvTime ) {
+        pageScroll: function( to ) {
             if( !document.body ){
-                return setTimeout('jUri.fn.pageScroll(' + to + ', ' + pxEvTime + ')',1);
+                return setTimeout('jUri.fn.pageScroll(' + to + ')',1);
             }
-
-            var pxLeft = Math.round( ((jUri.scroll)-to) *10)/10;
-            
-            if(!pxEvTime || typeof pxEvTime == 'undefined' || pxEvTime === 'undefined' || pxEvTime % 1 !== 0 ){
-                //Pixels every time
-                var pxEvTime = Math.round(pxLeft/25);
-                if( Math.round(pxEvTime) === 0 ) pxEvTime = 1;
-            }
-            
-            //Get the window height
-            var w=window,d=document,
-            e=d.documentElement,
-            g=d.getElementsByTagName('body')[0],
-            y=w.innerHeight||e.clientHeight||g.clientHeight,
-            
-            //Get the maxium scroll
-	        b= document.body,
-	        who= e.offsetHeight? e: b ,
-	        maxScroll = Math.max(who.scrollHeight,who.offsetHeight)-y;
-
-            if( !( (pxLeft < 0 && pxLeft > pxEvTime-1) || 
-                   (pxLeft > 0 && pxLeft < pxEvTime+1) )
-            && maxScroll != jUri.scroll ){
-            
-                window.scrollBy(0,-(pxEvTime));
-	
-	            scroll = setTimeout('jUri.fn.pageScroll(' + to + ', ' + pxEvTime + ')',1);
-	            jUri.setScroll();
-	            
-            }else{
-                clearTimeout(scroll)
-                jUri.setScroll();
-            }
+            jUri.fx.scroller.scrollTo( to );
         },
         
 
@@ -142,9 +115,88 @@ jUri.prototype = {
             }
             
             return null;
+        },
+        
+        
+        gotoAnchor: function( name ){
+            var anchor = jUri.fn.getAnchor( name ),
+            top = 0;
+            
+            if( anchor && anchor.offsetParent ){
+                do {
+                    top += anchor.offsetTop;
+                }while(anchor = anchor.offsetParent);
+            }
+            jUri.fn.pageScroll( top );
         }
     },
     
+    fx: {
+        scroller: {
+            stepIncrement: 25,
+            stepDelay: 5,
+            limit: 6000,
+            running: false,
+            nextStep: null,
+            killTimeout: null,
+            finalPoint: null,
+            scrollStep: function(to, dest, down) {
+                var stepIncrement = jUri.fx.scroller.stepIncrement,
+                running = jUri.fx.scroller.running;
+
+                if(!running || (down && to >= dest) || (!down && to <= dest)) {
+                    jUri.fx.scroller.killScroll();
+                    return;
+                }
+
+                if((down && to >= (dest - (2 * stepIncrement))) ||
+                   (!down && to <= (dest - (2 * stepIncrement)))) {
+                    stepIncrement = stepIncrement * .55;
+                }
+
+                window.scrollTo(0, to);
+                
+                // Assign the returned function to a public method.
+                
+                jUri.fx.scroller.nextStep = jUri.fx.scroller.callNext(+to + stepIncrement, dest, down);
+                jUri.fx.scroller.stepIncrement = stepIncrement;
+
+                window.setTimeout(jUri.fx.scroller.nextStep, jUri.fx.scroller.stepDelay);
+            },
+            callNext: function(to, dest, down) {
+                return function() { jUri.fx.scroller.scrollStep(to, dest, down); };
+            },
+            scrollTo: function( yCoord ) {
+                jUri.fx.scroller.running = true;
+                jUri.fx.scroller.finalPoint = yCoord;
+                
+                var currentYPosition = (document.all) ? document.body.scrollTop : window.pageYOffset,
+                down = true,
+                stepIncrement = jUri.fx.scroller.stepIncrement;
+
+                if(currentYPosition > yCoord) {
+                    stepIncrement *= -1;
+                    down = false;
+                }
+
+                // Stop the scroll once the time limit is reached.
+
+                jUri.fx.scroller.killTimeout = window.setTimeout(jUri.fx.scroller.killScroll, jUri.fx.scroller.limit);
+
+                jUri.fx.scroller.stepIncrement = stepIncrement;
+                jUri.fx.scroller.scrollStep(currentYPosition + stepIncrement, yCoord, down);
+            },
+            killScroll: function(){
+                window.clearTimeout(jUri.fx.scroller.killTimeout);
+                jUri.fx.scroller.running = false;
+                jUri.fx.scroller.stepIncrement = 50;
+                window.scrollTo(0,jUri.fx.scroller.finalPoint);
+                jUri.fx.scroller.finalPoint = null;
+            }
+        }
+    },
+
+
     /* jUri.hash();// returns the current hash
        jUri.hash(/regexp/);// returns true/false
        jUri.hash(/regexp/, function(){// returns true/false, executes callback if true
@@ -250,8 +302,22 @@ jUri.prototype = {
 
         return json;
     },
-    
-    
+
+
+    parseAsGet: function( str ){
+        var getVars = (str+'').replace(/^(.*?)\?/,'').split('&'),
+        
+        json = {};
+        
+        for( var e in getVars ){
+            var getParam = getVars[e].split('=');
+            json[ getParam[0] ] = getParam[1];
+        }
+
+        return json;
+    },
+
+
     /* jUri.redirect('index.html');// goes to the required url
        jUri.redirect('index.html', 1000);// goes to the required time after 1000 ms
     */
@@ -261,6 +327,19 @@ jUri.prototype = {
             setTimeout("window.location.href='" + uri + "'", timeout);
         }else{
             window.location.href = uri;
+        }
+    },
+
+
+    /*  jUri.reload();//reloads the page
+        jUri.reload(1000);//reloads the page in 1000 ms
+    */
+
+    reload: function( timeout ){
+        if( timeout && timeout % 1 === 0 ){
+            setTimeout("window.location.reload(true);", timeout);
+        }else{
+            window.location.reload(true);
         }
     },
     
@@ -291,7 +370,7 @@ jUri.prototype = {
            return true;
         }
         
-        return false
+        return false;
     },
     
     
@@ -335,19 +414,31 @@ jUri.prototype = {
                 //Disable default scrolling
                 e.preventDefault();
                 
-                var anchorName = this.href.split('#')[1],
-                anchor = jUri.fn.getAnchor( anchorName ),
-                top = 0;
-                
-                if( anchor.offsetParent ){
-                    do {
-                        top += anchor.offsetTop;
-                    }while(anchor = anchor.offsetParent);
-                }
-                jUri.fn.pageScroll( top );
+                var anchorName = this.href.split('#')[1];
+                jUri.fn.gotoAnchor( anchorName );
                 
             }
         }
+    },
+
+    encode: function(str){
+        return encodeURIComponent(str);
+    },
+
+    log: function(str){
+        console.log(str);
+    },
+
+    debug: function(str){
+        console.debug(str);
+    },
+
+    warn: function(str){
+        console.warn(str);
+    },
+
+    error: function(str){
+        console.error(str);
     }
     
 };
