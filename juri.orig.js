@@ -16,7 +16,8 @@ var jUri = function(){
         }
         
         var scroll = 0,
-        D = document
+        D = document;
+
         if( typeof window.pageYOffset == 'number' ) {
             //Netscape compliant
             var scroll = window.pageYOffset;
@@ -86,11 +87,11 @@ jUri.prototype = {
            not working always
         */
         
-        pageScroll: function( to ) {
+        pageScroll: function( to, callback ) {
             if( !document.body ){
                 return setTimeout('jUri.fn.pageScroll(' + to + ')',1);
             }
-            jUri.fx.scroller.scrollTo( to );
+            jUri.fx.scroller.scrollTo( to, callback );
         },
         
 
@@ -118,7 +119,7 @@ jUri.prototype = {
         },
         
         
-        gotoAnchor: function( name ){
+        gotoAnchor: function( name, callback ){
             var anchor = jUri.fn.getAnchor( name ),
             top = 0;
             
@@ -127,7 +128,7 @@ jUri.prototype = {
                     top += anchor.offsetTop;
                 }while(anchor = anchor.offsetParent);
             }
-            jUri.fn.pageScroll( top );
+            jUri.fn.pageScroll( top, callback );
         }
     },
     
@@ -140,6 +141,7 @@ jUri.prototype = {
             nextStep: null,
             killTimeout: null,
             finalPoint: null,
+            callback: null,
             scrollStep: function(to, dest, down) {
                 var stepIncrement = jUri.fx.scroller.stepIncrement,
                 running = jUri.fx.scroller.running;
@@ -166,8 +168,10 @@ jUri.prototype = {
             callNext: function(to, dest, down) {
                 return function() { jUri.fx.scroller.scrollStep(to, dest, down); };
             },
-            scrollTo: function( yCoord ) {
+            scrollTo: function( yCoord, callback ) {
                 jUri.fx.scroller.running = true;
+
+                jUri.fx.scroller.callback = callback;
                 jUri.fx.scroller.finalPoint = yCoord;
                 
                 var currentYPosition = (document.all) ? document.body.scrollTop : window.pageYOffset,
@@ -190,8 +194,12 @@ jUri.prototype = {
                 window.clearTimeout(jUri.fx.scroller.killTimeout);
                 jUri.fx.scroller.running = false;
                 jUri.fx.scroller.stepIncrement = 50;
+
                 window.scrollTo(0,jUri.fx.scroller.finalPoint);
                 jUri.fx.scroller.finalPoint = null;
+
+                jUri.fx.scroller.callback();
+                jUri.fx.scroller.callback = null;
             }
         }
     },
@@ -374,9 +382,13 @@ jUri.prototype = {
     },
     
     
-    animateAnchorLinks: function( anchors ){
+    animateAnchorLinks: function( anchors, changeHash ){
         if( !document.body ){
             return setTimeout('jUri.animateAnchorLinks("' + anchors + '")',1);
+        }
+
+        if( !changeHash || typeof changeHash != 'bool'){
+            changeHash = true;
         }
 
         var a = [],
@@ -413,9 +425,12 @@ jUri.prototype = {
             linkList[i].onclick = function(e){
                 //Disable default scrolling
                 e.preventDefault();
-                
+
+
                 var anchorName = this.href.split('#')[1];
-                jUri.fn.gotoAnchor( anchorName );
+                jUri.fn.gotoAnchor( anchorName, function(){
+                    if(changeHash) jUri.hash(anchorName);
+                });
                 
             }
         }
