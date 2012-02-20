@@ -1,44 +1,18 @@
-/*  jUri v0.1
-    Mini-javascript library for handling url functions
-    jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
-    You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
-    
-    Email me:
-    efz1005[at]gmail[dot]com */
+/* jUri v0.1
+Mini-javascript library for handling url functions
+jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
+You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
+Email me:
+efz1005[at]gmail[dot]com */
 
 /**********************/
 
 var jUri = function(){
     
-    this.setScroll = function(){
-        if( !document.body ){
-            return setTimeout('jUri.setScroll()',1);
-        }
-        
-        var scroll = 0,
-        D = document;
-
-        if( typeof window.pageYOffset == 'number' ) {
-            //Netscape compliant
-            var scroll = window.pageYOffset;
-        } else if( D.body.scrollTop ) {
-            //DOM compliant
-            var scroll = D.body.scrollTop;
-        } else if( D.documentElement.scrollTop ) {
-            //IE6 standards compliant mode
-            var scroll = D.documentElement.scrollTop;
-        }
-       
-        jUri.prevScroll = jUri.scroll || 0;
-        jUri.scroll = scroll;
-        window.onscroll = function(){ jUri.setScroll() };
-    };
-
-    this.setScroll();
-
     if (!window.console) {
         var log = window.opera ? window.opera.postError : alert;
         window.console = { log: function(str) { log(str) } };
+        window.console.error = window.console.warn = window.console.debug = window.console.log;
     }
 },
 
@@ -59,8 +33,8 @@ jUri.prototype = {
     
     fn: {
         /* jUri.fn.checkhash();
-           USED BY jUri.hashchange() event
-        */
+USED BY jUri.hashchange() event
+*/
         
         checkhash: function( str, prevScroll, callback ){
             if( jUri.hash() != str ){
@@ -83,9 +57,9 @@ jUri.prototype = {
         
         
         /* jUri.fn.pagescroll();
-           USED BY jUri.gotoanchor('name');
-           not working always
-        */
+USED BY jUri.gotoanchor('name');
+not working always
+*/
         
         pageScroll: function( to, callback ) {
             if( !document.body ){
@@ -134,7 +108,7 @@ jUri.prototype = {
     
     fx: {
         scroller: {
-            stepIncrement: 25,
+            stepIncrement: 5,
             stepDelay: 5,
             limit: 6000,
             running: false,
@@ -193,7 +167,7 @@ jUri.prototype = {
             killScroll: function(){
                 window.clearTimeout(jUri.fx.scroller.killTimeout);
                 jUri.fx.scroller.running = false;
-                jUri.fx.scroller.stepIncrement = 50;
+                jUri.fx.scroller.stepIncrement = 5;
 
                 window.scrollTo(0,jUri.fx.scroller.finalPoint);
                 jUri.fx.scroller.finalPoint = null;
@@ -206,11 +180,11 @@ jUri.prototype = {
 
 
     /* jUri.hash();// returns the current hash
-       jUri.hash(/regexp/);// returns true/false
-       jUri.hash(/regexp/, function(){// returns true/false, executes callback if true
-       });
-       jUri.hash('new hash');// changes the hash and returns the new value
-    */
+jUri.hash(/regexp/);// returns true/false
+jUri.hash(/regexp/, function(){// returns true/false, executes callback if true
+});
+jUri.hash('new hash');// changes the hash and returns the new value
+*/
        
     hash: function( text, callback ){
         if( text && text instanceof( RegExp ) ){
@@ -234,10 +208,10 @@ jUri.prototype = {
     
     
     /* jUri.hashchange(function(e){
-           //bind a function to the window.onhashchange event:
-           alert('The previous hash was "'+e.old+'" and now it\'s "'+e.new+'"');
-       });
-    */
+//bind a function to the window.onhashchange event:
+alert('The previous hash was "'+e.old+'" and now it\'s "'+e.new+'"');
+});
+*/
     
     hashchange: function( callback ){
         if( !document.body ){
@@ -261,9 +235,9 @@ jUri.prototype = {
     
     
     /* jUri.isHTTP();// returns true/false
-       jUri.isHTTP(function(){// returns true/false, executes callback if true
-       });
-    */
+jUri.isHTTP(function(){// returns true/false, executes callback if true
+});
+*/
     
     isHTTP: function( callback ){
         if( this.protocol.match(/^http$/) ){
@@ -276,9 +250,9 @@ jUri.prototype = {
     
     
     /* jUri.isHTTPS();// returns true/false
-       jUri.isHTTPS(function(){// returns true/false, executes callback if true
-       });
-    */
+jUri.isHTTPS(function(){// returns true/false, executes callback if true
+});
+*/
     
     isHTTPS: function( callback ){
         if( this.protocol.match(/^https$/) ){
@@ -291,9 +265,9 @@ jUri.prototype = {
     
     
     /* jUri.vars();// returns a map with all vars passed by get
-       jUri.vars('key');// returns the value of the required key, 
-                              if none, returns the entire map
-    */
+jUri.vars('key');// returns the value of the required key,
+if none, returns the entire map
+*/
     
     vars: function( index ){
         var getStr = this.get.replace(/^\?/,''),
@@ -327,8 +301,8 @@ jUri.prototype = {
 
 
     /* jUri.redirect('index.html');// goes to the required url
-       jUri.redirect('index.html', 1000);// goes to the required time after 1000 ms
-    */
+jUri.redirect('index.html', 1000);// goes to the required time after 1000 ms
+*/
     
     redirect: function( uri, timeout ){
         if( timeout && timeout % 1 === 0 ){
@@ -339,9 +313,9 @@ jUri.prototype = {
     },
 
 
-    /*  jUri.reload();//reloads the page
-        jUri.reload(1000);//reloads the page in 1000 ms
-    */
+    /* jUri.reload();//reloads the page
+jUri.reload(1000);//reloads the page in 1000 ms
+*/
 
     reload: function( timeout ){
         if( timeout && timeout % 1 === 0 ){
@@ -353,10 +327,10 @@ jUri.prototype = {
     
     
     /* jUri.isFile();// returns true/false if the current url is a file path
-       jUri.isFile(function(){// executes callback if true, returns true/false
-       });
-       //NOTE: does not check if the file exists
-    */
+jUri.isFile(function(){// executes callback if true, returns true/false
+});
+//NOTE: does not check if the file exists
+*/
     
     isFile: function( callback ){
         if( this.pathname.match(/\.(html|htm|php|phtml|asp|shtml|cgi|jsp|pl)$/i) ){
@@ -369,8 +343,8 @@ jUri.prototype = {
     
     
     /* jUri.anchorExists('name');// returns true/false if there is an <a> tag in the document
-                                 // with this code: <a name="name"></a>
-    */
+// with this code: <a name="name"></a>
+*/
     
     anchorExists: function( hash ){
         var anchor = this.fn.getAnchor( hash );
@@ -402,7 +376,7 @@ jUri.prototype = {
                 }
             }
         }else{
-            var splitted = anchors.replace(/\s/gim,'').split(','), 
+            var splitted = anchors.replace(/\s/gim,'').split(','),
             anchor;
             
             for( var e in splitted ){
