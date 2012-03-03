@@ -38,7 +38,7 @@ var jUri = (function( window, document ){
 
     window.jUriReady = function( callback ){
         if( !document.body || !window.jUri ){
-            return setTimeout('window.jUriReady(' + callback+ ')');
+            return setTimeout('window.jUriReady(' + callback+ ')', 1);
         }
         callback();
     };
@@ -55,10 +55,29 @@ var jUri = (function( window, document ){
                 if( after ){
                     jUri.fn.addEvent(link, 'click', function(e){
                         e.preventDefault();
-                        
+
                         var href = this.href,
                         after = this.getAttribute('data-after');
                         jUri.redirect(href, after);                        
+                    });
+                }
+            }
+        });
+    })();
+
+    //Checking elements with data-hash attribute
+    (function(){
+        jUriReady(function(){
+            var all = document.getElementsByTagName('*');
+
+            for( var e = 0, l = all.length; e<l; e++ ){
+                var el = all[e],
+                hash = el.getAttribute('data-hash');
+
+                if( hash || hash == '' ){
+                    jUri.fn.addEvent(el, 'click', function(e){
+                        var hash = this.getAttribute('data-hash');
+                        jUri.hash(hash);
                     });
                 }
             }
