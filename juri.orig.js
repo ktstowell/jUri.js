@@ -63,7 +63,7 @@ var jUri = (function(window,document){
                 }
             }
             
-            else if( text ){
+            else if( text || text == '' ){
                 window.location.hash = text;
                 return text;
             }
@@ -203,10 +203,10 @@ var jUri = (function(window,document){
         
         animateAnchorLinks: function( anchors, changeHash ){
             if( !document.body ){
-                return setTimeout('jUri.animateAnchorLinks("' + anchors + '")',1);
+                return setTimeout('jUri.animateAnchorLinks("' + anchors + '", ' + changeHash + ')',1);
             }
 
-            if( !changeHash || typeof changeHash != 'bool'){
+            if( typeof changeHash != 'boolean'){
                 changeHash = true;
             }
 
@@ -214,8 +214,12 @@ var jUri = (function(window,document){
             linkList = [],
             links = document.getElementsByTagName('a');
             
-            if( !anchors || typeof anchors == 'undefined' || anchors === 'undefined' ){
+            if( !anchors 
+              || typeof anchors == 'undefined' 
+              || anchors === 'undefined' 
+              || anchors == '*' ){
                 for( var e in links ){
+
                     if( links[e].name && links[e].name != '' ){
                         a.push(links[e].name);
                     }
@@ -235,6 +239,9 @@ var jUri = (function(window,document){
                 for( var e in links ){
                     if( links[e].href && links[e].href != '' && links[e].href.match('#'+a[i]+'$') ){
                         linkList.push( links[e] );
+                    }else if( links[e].href.match(/#$/) ){
+                        //scroll to top links
+                        linkList.push( links[e] );
                     }
                 }
             }
@@ -246,8 +253,9 @@ var jUri = (function(window,document){
                     e.preventDefault();
 
                     var anchorName = this.href.split('#')[1];
+
                     jUri.fn.gotoAnchor( anchorName, function(){
-                        if(changeHash) jUri.hash(anchorName);
+                        if( changeHash == true ) jUri.hash(anchorName);
                     });
                     
                 }
@@ -323,7 +331,7 @@ var jUri = (function(window,document){
             gotoAnchor: function( name, callback ){
                 var anchor = jUri.fn.getAnchor( name ),
                 top = 0;
-                
+
                 if( anchor && anchor.offsetParent ){
                     do {
                         top += anchor.offsetTop;
