@@ -7,7 +7,7 @@ efz1005[at]gmail[dot]com */
 
 /**********************/
 
-var jUri = (function(window,document){
+var jUri = (function( window, document ){
     if (!window.console) {
         var log = window.opera ? window.opera.postError : alert;
         window.console = { log: function(str) { log(str) } };

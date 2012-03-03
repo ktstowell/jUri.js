@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>jUri - test document</title>
+	<script src="juri.orig.js"></script>
+
+	<script>
+		jUri.hashchange(function(){
+			alert('The hash was changed!');
+		});
+
+		jUri.animateAnchorLinks('*', false);
+	</script>
+
+	<style>
+	<!--
+	body {height:1500px;}/*for page scroll testing*/
+	-->
+	</style>
+</head>
+
+<body>
+
+	<hgroup>
+		<h1>jUri - test document</h1>
+	</hgroup>
+
+
+	<p onclick="jUri.hash('changed!');">Click here to change the hash</p>
+
+	<p onclick="jUri.hash('');">Click here to delete the hash</p>
+
+	<p><a href="#anchor1">Click me!</a></p>
+
+	<p><a href="javascript:;" onclick="jUri.reload(5000);">Click me to reload after 5 seconds</a></p>
+
+	<p><a href="javascript:;" onclick="jUri.redirect('http://github.com/3nr1c/jUri.js',2000)">Click me to go the jUri's github page (after 2 seconds)</a></p>
+
+	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
+	<a name="anchor1"></a>Hi!<br/>
+	<a href="#">Scroll to top</a>
+
+</body>
+
+</html>
