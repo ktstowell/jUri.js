@@ -36,6 +36,35 @@ var jUri = (function( window, document ){
 
     })(loc.search);
 
+    window.jUriReady = function( callback ){
+        if( !document.body || !window.jUri ){
+            return setTimeout('window.jUriReady(' + callback+ ')');
+        }
+        callback();
+    };
+
+    //Checking links with data-after attribute
+    (function(){
+        jUriReady(function(){
+            var links = document.getElementsByTagName('a');
+
+            for( var e = 0, l = links.length; e<l; e++ ){
+                var link = links[e],
+                after = link.getAttribute('data-after');
+
+                if( after ){
+                    jUri.fn.addEvent(link, 'click', function(e){
+                        e.preventDefault();
+                        
+                        var href = this.href,
+                        after = this.getAttribute('data-after');
+                        jUri.redirect(href, after);                        
+                    });
+                }
+            }
+        });
+    })();
+
     return {
         
         host: host,
@@ -248,7 +277,7 @@ var jUri = (function( window, document ){
             
             //iterate the linkList and bind a click event to each link
             for( var i in linkList ){
-                linkList[i].onclick = function(e){
+                jUri.fn.addEvent(linkList[i], 'click', function(e){
                     //Disable default scrolling
                     e.preventDefault();
 
@@ -258,7 +287,7 @@ var jUri = (function( window, document ){
                         if( changeHash == true ) jUri.hash(anchorName);
                     });
                     
-                }
+                });
             }
         },
 
@@ -338,7 +367,31 @@ var jUri = (function( window, document ){
                     }while(anchor = anchor.offsetParent);
                 }
                 jUri.fn.pageScroll( top, callback );
-            }
+            },
+
+            addEvent: (function () {
+              if (document.addEventListener) {
+                return function (el, type, fn) {
+                  if (el && el.nodeName || el === window) {
+                    el.addEventListener(type, fn, false);
+                  } else if (el && el.length) {
+                    for (var i = 0; i < el.length; i++) {
+                      addEvent(el[i], type, fn);
+                    }
+                  }
+                };
+              } else {
+                return function (el, type, fn) {
+                  if (el && el.nodeName || el === window) {
+                    el.attachEvent('on' + type, function () { return fn.call(el, window.event); });
+                  } else if (el && el.length) {
+                    for (var i = 0; i < el.length; i++) {
+                      addEvent(el[i], type, fn);
+                    }
+                  }
+                };
+              }
+            })()
         },
         
         fx: {
