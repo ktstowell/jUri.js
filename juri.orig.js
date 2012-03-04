@@ -92,6 +92,12 @@ var jUri = (function( window, document ){
             }
 
             jUri.anchorsCreated = true;
+
+            jUri.hash(/^.*$/, function(){
+                if( jUri.anchorExists( jUri.hash() ) ){
+                    var currentAnchor = jUri.fn.getAnchor(jUri.hash());
+                }                
+            });
         });
     })();
 
@@ -394,6 +400,7 @@ var jUri = (function( window, document ){
                 if( !document.body ){
                     return setTimeout('jUri.fn.pageScroll(' + to + ')',1);
                 }
+
                 jUri.fx.scroller.scrollTo( to, callback );
             },
             
@@ -402,7 +409,7 @@ var jUri = (function( window, document ){
                 if( !document.body ){
                     return setTimeout('jUri.fn.getAnchor(' + hash +')', 1);
                 }
-                
+
                 if( !hash ){
                     return null;
                 }
@@ -414,6 +421,7 @@ var jUri = (function( window, document ){
                 for( var e in links ){
                     element = links[e];
                     if( element.name.replace(/^#/,'') === hash ){
+
                         return element;
                     }
                 }
@@ -431,6 +439,7 @@ var jUri = (function( window, document ){
                         top += anchor.offsetTop;
                     }while(anchor = anchor.offsetParent);
                 }
+
                 jUri.fn.pageScroll( top, callback );
             },
 
@@ -517,7 +526,7 @@ var jUri = (function( window, document ){
                 },
                 scrollTo: function( yCoord, callback ) {
                     //Prevent multiple scrolling
-                    if(jUri.fx.scroller.running) return;
+                    if(jUri.fx.scroller.running) return false;
 
                     jUri.fx.scroller.running = true;
 
@@ -527,6 +536,11 @@ var jUri = (function( window, document ){
                     var currentYPosition = (document.all) ? document.body.scrollTop : window.pageYOffset,
                     down = true,
                     stepIncrement = jUri.fx.scroller.stepIncrement;
+
+                    if( currentYPosition == yCoord ){
+                        jUri.fx.scroller.killScroll();
+                        console.log(yCoord)
+                    }
 
                     if(currentYPosition > yCoord) {
                         stepIncrement *= -1;
