@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>jUri API</title>
+</head>
+
+<script src="juri.min.js"></script>
+<script>
+	jUri.animateAnchorLinks();
+</script>
+
+<style>
+<!--
+.spec {
+	background: #ddd;
+	font-size:12px;
+	width:500px;
+	padding: 5px ;
+}
+-->
+</style>
+
+<body>
+
+	<hgroup>
+		<h1>jUri API</h1>
+	</hgroup>
+
+	<ul>
+		<li><a href="#set">.set()</a></li>
+		<li><a href="#title">.title()</a></li>
+		<li><a href="#hash">.hash()</a></li>
+		<li><a href="#hashchange">.hashchange()</a></li>
+		<li><a href="#ishttp">.isHTTP()</a></li>
+		<li><a href="#ishttps">.isHTTPS()</a></li>
+		<li><a href="#parseasget">.parseAsGet()</a></li>
+		<li><a href="#redirect">.redirect()</a></li>
+		<li><a href="#reload">.reload()</a></li>
+		<li><a href="#isfile">.isFile()</a></li>
+		<li><a href="#anchorexists">.anchorExists()</a></li>
+		<li><a href="#animateanchorlinks">.animateAnchorLinks()</a></li>
+	</ul>
+
+	<br/>
+	<hr data-name="set"/>
+
+	<h3>.set()</h3>
+	<div class="spec">
+	<code>
+		jUri.set( url [, fallback] )<br/>
+		jUri.set( object [, fallback] )
+	</code>
+	<p><b>url</b> A string with the url to set<br/>
+	   <b>fallback</b> A function to be executed if the browser doesn't support url changes<br/>
+	   <b>object</b> A map of these three properties:<br/>
+	   <ul>
+	   	<li><b>data</b> An object to be pushed into the history.pushState function</li>
+	   	<li><b>title</b> The new title of the window</li>
+	   	<li><b>url</b> The new url of the window</li>
+   	   </ul>
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="title"/>
+
+	<h3>.title()</h3>
+	<div class="spec">
+	<code>
+		jUri.title( title )
+	</code>
+	<p><b>title</b> A string with the new window title
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="hash"/>
+
+	<h3>.hash()</h3>
+	<div class="spec">
+	<code>
+		jUri.hash( )//returns the current hash<br/>
+		jUri.hash( newhash )//set a new hash<br/>
+		jUri.hash( regexp [, callback] )//match the current hash with the regexp, returns true/false. If true, execute the callback<br/>
+	</code>
+	<p><b>newhash</b> A string with the new hash<br/>
+	   <b>regexp</b> A regular expresion to be matched with the current hash<br/>
+	   <b>callback</b> A function to be executed if the hash matches with the regexp
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="hashchange"/>
+
+	<h3>.hashchange()</h3>
+	<div class="spec">
+	<code>
+		jUri.hashchange( callback )
+	</code>
+	<p><b>callback</b> A function to be executed when the hash changes
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="ishttp"/>
+
+	<h3>.isHTTP()</h3>
+	<div class="spec">
+	<code>
+		jUri.isHTTP( )
+	</code>
+	<p>Returns true/false when the current protocol is http://
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="ishttps"/>
+
+	<h3>.isHTTPS()</h3>
+	<div class="spec">
+	<code>
+		jUri.isHTTPS( )
+	</code>
+	<p>Returns true/false when the current protocol is https://
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="parseasget"//>
+
+	<h3>.parseAsGet()</h3>
+	<div class="spec">
+	<code>
+		jUri.parseAsGet( getstring )
+	</code>
+	<p><b>getstring</b> A string like '?foo=bar&b=f'<br/>
+		Returns a map of the vars passed in the string
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="redirect"//>
+
+	<h3>.redirect()</h3>
+	<div class="spec">
+	<code>
+		jUri.redirect( url [, timeout] )
+	</code>
+	<p><b>url</b> The url to redirect to<br/>
+	   <b>timeout</b> An integer in miliseconds to redirect after that time
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="reload"//>
+
+	<h3>.reload()</h3>
+	<div class="spec">
+	<code>
+		jUri.redirect( [timeout] )
+	</code>
+	<p><b>timeout</b> An integer in miliseconds to reload after that time
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="isfile"//>
+
+	<h3>.isFile()</h3>
+	<div class="spec">
+	<code>
+		jUri.isFile( [callback] )
+	</code>
+	<p>This function check if the current url is a file-url (but doesn't check if the file exists)<br/>
+		<b>callback</b> A function to be executed if the url is a file-url
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="anchorexists"//>
+
+	<h3>.anchorExists()</h3>
+	<div class="spec">
+	<code>
+		jUri.anchorExists( name [, callback] )
+	</code>
+	<p><b>name</b> A string to search an anchor like <a name="name"></a><br/>
+		<b>callback</b> A function to be executed if the anchor exists (the anchor is passed as argument of the function)
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	<hr data-name="animateanchorlinks"//>
+
+	<h3>.animateAnchorLinks()</h3>
+	<div class="spec">
+	<code>
+		jUri.animateAnchorLinks( )<br/>
+		jUri.animateAnchorLinks( [anchors] [, changehash] )
+	</code>
+	<p>This function set an animate scrolling when a link like <a href="#foo">Bar</a> is clicked (an there is an anchor like <a name="foo"></a>)<br/>
+		<b>anchors</b> The anchor name's to be animated, separated by ','. The string can be '*' to animate all the anchors<br/>
+		<b>changehash</b> A boolean, if true, the hash is changed after each scroll
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+</body>
+
+</html>

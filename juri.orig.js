@@ -7,7 +7,7 @@ efz1005[at]gmail[dot]com */
 
 /**********************/
 
-var jUri = (function( window, document ){
+var jUri = (function( window ){
     if (!window.console) {
         var log = window.opera ? window.opera.postError : alert;
         window.console = { log: function(str) { log(str) } };
@@ -93,14 +93,24 @@ var jUri = (function( window, document ){
 
             jUri.anchorsCreated = true;
 
-            jUri.hash(/^.*$/, function(){
-                if( jUri.anchorExists( jUri.hash() ) ){
-                    var currentAnchor = jUri.fn.getAnchor(jUri.hash());
-                }                
-            });
         });
     })();
 
+    jUriReady(function(){
+        if( jUri.anchorExists( jUri.hash() ) ){
+            var anchor = jUri.fn.getAnchor(jUri.hash()),
+            top = 0;
+
+            if( anchor && anchor.offsetParent ){
+                do {
+                    top += anchor.offsetTop;
+                }while(anchor = anchor.offsetParent);
+            }
+
+            window.scrollTo(0,top);
+        }
+    });
+        
     return {
         
         host: host,
@@ -285,10 +295,11 @@ var jUri = (function( window, document ){
         // with this code: <a name="name"></a>
         */
         
-        anchorExists: function( hash ){
-            var anchor = this.fn.getAnchor( hash );
+        anchorExists: function( name, callback ){
+            var anchor = this.fn.getAnchor( name );
             if( anchor ){
-               return true;
+                callback ? callback(anchor) : false;
+                return true;
             }
             
             return false;
@@ -300,6 +311,11 @@ var jUri = (function( window, document ){
         animateAnchorLinks: function( anchors, changeHash ){
             if( !document.body || !jUri.anchorsCreated ){
                 return setTimeout('jUri.animateAnchorLinks("' + anchors + '", ' + changeHash + ')',1);
+            }
+
+            if( typeof anchors == 'boolean' ){
+                anchors = '*';
+                changeHash = anchors;
             }
 
             if( typeof changeHash != 'boolean'){
@@ -539,7 +555,6 @@ var jUri = (function( window, document ){
 
                     if( currentYPosition == yCoord ){
                         jUri.fx.scroller.killScroll();
-                        console.log(yCoord)
                     }
 
                     if(currentYPosition > yCoord) {
@@ -562,7 +577,8 @@ var jUri = (function( window, document ){
                     window.scrollTo(0,jUri.fx.scroller.finalPoint);
                     jUri.fx.scroller.finalPoint = null;
 
-                    jUri.fx.scroller.callback();
+                    typeof jUri.fx.scroller.callback == 'function' ?
+                        jUri.fx.scroller.callback() : false;
                     jUri.fx.scroller.callback = null;
                 }
             }
@@ -586,7 +602,7 @@ var jUri = (function( window, document ){
     
     }
 
-})(window,document),
+})(window),
 
 hashChangeEvent = function( prevHash, newHash ){
     this.oldHash = prevHash || "#";
