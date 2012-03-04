@@ -2,15 +2,26 @@
 <html>
 
 <head>
-	<title>jUri - test document</title>
+	<title>jUri</title>
 	<script src="juri.orig.js"></script>
 
 	<script>
 		jUri.hashchange(function(){
 			alert('The hash was changed!');
+
+			jUri.set({
+				//title:'The hash was changed!',
+				url:'/jUri/tester.html'
+			}, function(){
+				alert('Your browser doesn\'t support history.pushState');
+			});
+
 		});
 
 		jUri.animateAnchorLinks('*', false);
+
+		jUri.title('jUri - test document');
+
 	</script>
 
 	<style>
@@ -37,13 +48,20 @@
 
 		<li onclick="jUri.reload(2000);">Reload after 2 seconds</li>
 
-		<li><a href="http://github.com/3nr1c/jUri.js" data-after="1500">(data-after) go to the jUri's page at github after 1500 ms</a></p>
+		<li><a href="http://github.com/3nr1c/jUri.js" data-after="1500">(data-after) go to the jUri's page at github after 1500 ms</a></li>
+
+		<li><a href="#ptag">Go to the data-name test</a></li>
 
 	</ul>
 
 	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
 	<a name="anchor1"></a>Hi!<br/>
+	<a href="#">Scroll to top</a>
+
+	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
+	<p data-name="ptag">Testing data-name</p><br/>
 	<a href="#">Scroll to top</a>
 
 </body>

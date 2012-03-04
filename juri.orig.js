@@ -1,4 +1,4 @@
-/* jUri v0.1
+/* jUri v0.2
 Mini-javascript library for handling url functions
 jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
 You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
@@ -66,13 +66,15 @@ var jUri = (function( window, document ){
     })();
 
     //Checking elements with data-hash attribute
+    //and data-name attribute
     (function(){
         jUriReady(function(){
             var all = document.getElementsByTagName('*');
 
             for( var e = 0, l = all.length; e<l; e++ ){
                 var el = all[e],
-                hash = el.getAttribute('data-hash');
+                hash = el.getAttribute('data-hash'),
+                name = el.getAttribute('data-name');
 
                 if( hash || hash == '' ){
                     jUri.fn.addEvent(el, 'click', function(e){
@@ -80,7 +82,16 @@ var jUri = (function( window, document ){
                         jUri.hash(hash);
                     });
                 }
+
+                if( name && !jUri.anchorExists(name) ){
+                    //console.log(name)
+                    var anchor = document.createElement('a');
+                    anchor.name = name;
+                    el.parentNode.insertBefore(anchor, el);
+                }
             }
+
+            jUri.anchorsCreated = true;
         });
     })();
 
@@ -94,6 +105,35 @@ var jUri = (function( window, document ){
         protocol: protocol,
         get: get,
         
+        set: function( data, fallback ){
+            if( history.pushState ){
+
+                if( typeof data == 'string' ){
+                    history.pushState( {}, '', data);
+                }else{
+                    var object = data.data || {},
+                    title = data.title || '',
+                    url = data.url || '';
+
+                    this.title(title);
+
+                    history.pushState( object, title, url);
+                }
+
+            }else if( fallback && typeof fallback == 'function' ){
+                fallback();
+            }
+        },
+
+        title: function( text ){
+            try {
+                document.getElementsByTagName('title')[0].innerHTML = text.replace('<','&lt;').replace('>','&gt;').replace(' & ',' &amp; ');
+            }
+            catch ( e ) {
+                document.title = title;
+            }
+        },
+
         /* jUri.hash();// returns the current hash
         jUri.hash(/regexp/);// returns true/false
         jUri.hash(/regexp/, function(){// returns true/false, executes callback if true
@@ -247,10 +287,12 @@ var jUri = (function( window, document ){
             
             return false;
         },
+
+        anchorsCreated: false,
         
         
         animateAnchorLinks: function( anchors, changeHash ){
-            if( !document.body ){
+            if( !document.body || !jUri.anchorsCreated ){
                 return setTimeout('jUri.animateAnchorLinks("' + anchors + '", ' + changeHash + ')',1);
             }
 
@@ -294,8 +336,12 @@ var jUri = (function( window, document ){
                 }
             }
             
+            //Prevent repeated anchors 
+            linkList = this.fn.removeDuplicated(linkList);
+
             //iterate the linkList and bind a click event to each link
             for( var i in linkList ){
+                //console.log(linkList[i])
                 jUri.fn.addEvent(linkList[i], 'click', function(e){
                     //Disable default scrolling
                     e.preventDefault();
@@ -388,6 +434,26 @@ var jUri = (function( window, document ){
                 jUri.fn.pageScroll( top, callback );
             },
 
+            removeDuplicated: function (arrayName, filterBy){
+                var newArray = new Array();
+                if( typeof filterBy == 'undefined' ){
+                    label:for(var i in arrayName ){
+                        for(var j in newArray ){
+                            if(newArray[j]==arrayName[i]) continue label;
+                        }
+                        newArray[newArray.length] = arrayName[i];
+                    }
+                }else{
+                    label:for(var i in arrayName ){
+                        for(var j in newArray ){
+                            if(newArray[j][filterBy]==arrayName[i][filterBy]) continue label;
+                        }
+                        newArray[newArray.length] = arrayName[i];
+                    }
+                }
+                return newArray;
+            },
+
             addEvent: (function () {
               if (document.addEventListener) {
                 return function (el, type, fn) {
@@ -395,7 +461,7 @@ var jUri = (function( window, document ){
                     el.addEventListener(type, fn, false);
                   } else if (el && el.length) {
                     for (var i = 0; i < el.length; i++) {
-                      addEvent(el[i], type, fn);
+                      jUri.fn.addEvent(el[i], type, fn);
                     }
                   }
                 };
@@ -405,7 +471,7 @@ var jUri = (function( window, document ){
                     el.attachEvent('on' + type, function () { return fn.call(el, window.event); });
                   } else if (el && el.length) {
                     for (var i = 0; i < el.length; i++) {
-                      addEvent(el[i], type, fn);
+                      jUri.fn.addEvent(el[i], type, fn);
                     }
                   }
                 };
@@ -415,8 +481,8 @@ var jUri = (function( window, document ){
         
         fx: {
             scroller: {
-                stepIncrement: 5,
-                stepDelay: 5,
+                stepIncrement: 20,
+                stepDelay: 1,
                 limit: 6000,
                 running: false,
                 nextStep: null,
@@ -450,6 +516,9 @@ var jUri = (function( window, document ){
                     return function() { jUri.fx.scroller.scrollStep(to, dest, down); };
                 },
                 scrollTo: function( yCoord, callback ) {
+                    //Prevent multiple scrolling
+                    if(jUri.fx.scroller.running) return;
+
                     jUri.fx.scroller.running = true;
 
                     jUri.fx.scroller.callback = callback;
@@ -474,7 +543,7 @@ var jUri = (function( window, document ){
                 killScroll: function(){
                     window.clearTimeout(jUri.fx.scroller.killTimeout);
                     jUri.fx.scroller.running = false;
-                    jUri.fx.scroller.stepIncrement = 5;
+                    jUri.fx.scroller.stepIncrement = 20;
 
                     window.scrollTo(0,jUri.fx.scroller.finalPoint);
                     jUri.fx.scroller.finalPoint = null;
