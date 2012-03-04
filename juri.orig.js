@@ -351,7 +351,7 @@ var jUri = (function( window ){
                 for( var e in links ){
                     if( links[e].href && links[e].href != '' && links[e].href.match('#'+a[i]+'$') ){
                         linkList.push( links[e] );
-                    }else if( links[e].href.match(/#$/) ){
+                    }else if( links[e].href && links[e].href.match(/#$/) ){
                         //scroll to top links
                         linkList.push( links[e] );
                     }
@@ -436,7 +436,7 @@ var jUri = (function( window ){
                 
                 for( var e in links ){
                     element = links[e];
-                    if( element.name.replace(/^#/,'') === hash ){
+                    if( element.name && element.name.replace(/^#/,'') === hash ){
 
                         return element;
                     }
