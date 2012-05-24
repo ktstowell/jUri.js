@@ -121,8 +121,10 @@ var jUri = (function( window ){
         protocol: protocol,
         get: get,
         
-        set: function( data, fallback ){
+        set: function( data, fallback, newState ){
             if( history.pushState ){
+
+                if( !newState ) newState = true;
 
                 if( typeof data == 'string' ){
                     history.pushState( {}, '', data);
@@ -133,13 +135,19 @@ var jUri = (function( window ){
 
                     this.title(title);
 
-                    history.pushState( object, title, url);
+                    if( newState ){
+                        history.pushState( object, title, url);
+                    }else{
+                        history.replaceState( object, title, url);
+                    }
                 }
 
             }else if( fallback && typeof fallback == 'function' ){
                 fallback();
             }
         },
+
+
 
         title: function( text ){
             try {
@@ -581,7 +589,39 @@ var jUri = (function( window ){
                         jUri.fx.scroller.callback() : false;
                     jUri.fx.scroller.callback = null;
                 }
-            }
+            },
+
+            //this one is just an idea:
+            
+            /*urlanimator:{
+                initstring:'',
+                newstring:'',
+                to:'right',
+                prevState:window.location.href,
+                init: function(newstring, initstring, to){
+                    if(initstring)
+                        jUri.fx.urlanimator.initstring = initstring;
+                    if(to)
+                        jUri.fx.urlanimator.to = to;
+
+                    jUri.set(jUri.href);
+
+                    jUri.fx.urlanimator.newstring = newstring.split('');
+                    jUri.fx.urlanimator.callnext();
+                },
+                callnext: function(){
+                    var newstring = jUri.fx.urlanimator.newstring,
+                    url = jUri.fx.urlanimator.prevState,
+                    newurl = url+newstring[0];
+
+                    jUri.fx.urlanimator.newstring = newstring.slice(1);
+                    jUri.fx.urlanimator.prevState = newurl;
+                    jUri.set(newurl);
+
+                    if(jUri.fx.urlanimator.newstring.length)
+                        setTimeout(jUri.fx.urlanimator.callnext,10);
+                }
+            }*/
         },
 
         log: function(str){
