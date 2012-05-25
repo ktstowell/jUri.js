@@ -168,7 +168,10 @@ var jUri = (function( window ){
             }
 
             return {
-                stop: jUri.fx.changeTitle.stop
+                stop: function( str ){
+                    jUri.fx.changeTitle.stop();
+                    jUri.title( str );
+                }
             }
         },
 
