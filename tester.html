@@ -21,7 +21,6 @@
 		jUri.animateAnchorLinks('*', false);
 
 		jUri.title('jUri - test document');
-
 	</script>
 
 	<style>
@@ -53,6 +52,8 @@
 		<li><a href="http://github.com/3nr1c/jUri.js" data-after="1500">(data-after) go to the jUri's page at github after 1500 ms</a></li>
 
 		<li><a href="#ptag">Go to the data-name test</a></li>
+		<li onclick="jUri.title(['Hello','World'])">Start title changing</li>
+		<li onclick="jUri.title().stop()">Stop title changing</li>
 
 	</ul>
 

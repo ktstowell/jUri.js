@@ -149,12 +149,26 @@ var jUri = (function( window ){
 
 
 
-        title: function( text ){
-            try {
-                document.getElementsByTagName('title')[0].innerHTML = text.replace('<','&lt;').replace('>','&gt;').replace(' & ',' &amp; ');
+        title: function( text, ms ){
+            if(typeof text == 'string' ){
+                //Normal use
+                try {
+                    document.getElementsByTagName('title')[0].innerHTML = text.replace('<','&lt;').replace('>','&gt;').replace(' & ',' &amp; ');
+                }
+                catch ( e ) {
+                    document.title = text;
+                }
             }
-            catch ( e ) {
-                document.title = title;
+
+            else if(typeof text == 'object' ){
+                //Periodic title changing
+                if( !ms ) ms = 1500;
+
+                jUri.fx.changeTitle.init( text, ms );
+            }
+
+            return {
+                stop: jUri.fx.changeTitle.stop
             }
         },
 
@@ -588,6 +602,44 @@ var jUri = (function( window ){
                     typeof jUri.fx.scroller.callback == 'function' ?
                         jUri.fx.scroller.callback() : false;
                     jUri.fx.scroller.callback = null;
+                }
+            },
+
+            changeTitle: {
+                active: false,
+                obj: [],
+                current: 0,
+                timeNext: 1500,
+                timeOut: null,
+                init: function( obj, ms ){
+                    if( jUri.fx.changeTitle.active ) return false;
+                    jUri.fx.changeTitle.active = true;
+
+                    jUri.fx.changeTitle.obj = obj;
+                    jUri.fx.changeTitle.timeNext = ms;
+
+                    jUri.fx.changeTitle.callNext();
+                },
+                callNext: function(){
+                    var n = jUri.fx.changeTitle.current,
+                    obj = jUri.fx.changeTitle.obj,
+                    time = jUri.fx.changeTitle.timeNext;
+
+                    if( obj[n] ){
+                        jUri.title(obj[n]);
+                        jUri.fx.changeTitle.current = n+1;
+                    }else{
+                        jUri.title(obj[0]);
+                        jUri.fx.changeTitle.current = 0;
+                    }
+                    jUri.fx.changeTitle.timeOut = setTimeout(jUri.fx.changeTitle.callNext,time);
+                },
+                stop: function(){
+                    jUri.fx.changeTitle.active = false;
+                    jUri.fx.changeTitle.obj = false;
+                    jUri.fx.changeTitle.current = false;
+                    jUri.fx.changeTitle.timeNext = 1500;
+                    window.clearTimeout(jUri.fx.changeTitle.timeOut);
                 }
             },
 
