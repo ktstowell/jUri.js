@@ -149,7 +149,11 @@ var jUri = (function( window ){
 
 
         back: function( int, fallback ){
-            window.history.back(int);
+            try {
+                window.history.back(int);
+            }catch(e){
+                if( fallback ) fallback();
+            }
         },
 
 
