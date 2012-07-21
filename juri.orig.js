@@ -148,6 +148,10 @@ var jUri = (function( window ){
         },
 
 
+        back: function( int, fallback ){
+            window.history.back(int);
+        },
+
 
         title: function( text, ms ){
             if(typeof text == 'string' ){
