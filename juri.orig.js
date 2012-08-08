@@ -654,37 +654,6 @@ var jUri = (function( window ){
                 }
             },
 
-            //this one is just an idea:
-            
-            /*urlanimator:{
-                initstring:'',
-                newstring:'',
-                to:'right',
-                prevState:window.location.href,
-                init: function(newstring, initstring, to){
-                    if(initstring)
-                        jUri.fx.urlanimator.initstring = initstring;
-                    if(to)
-                        jUri.fx.urlanimator.to = to;
-
-                    jUri.set(jUri.href);
-
-                    jUri.fx.urlanimator.newstring = newstring.split('');
-                    jUri.fx.urlanimator.callnext();
-                },
-                callnext: function(){
-                    var newstring = jUri.fx.urlanimator.newstring,
-                    url = jUri.fx.urlanimator.prevState,
-                    newurl = url+newstring[0];
-
-                    jUri.fx.urlanimator.newstring = newstring.slice(1);
-                    jUri.fx.urlanimator.prevState = newurl;
-                    jUri.set(newurl);
-
-                    if(jUri.fx.urlanimator.newstring.length)
-                        setTimeout(jUri.fx.urlanimator.callnext,10);
-                }
-            }*/
         },
 
         log: function(str){
@@ -701,6 +670,10 @@ var jUri = (function( window ){
 
         error: function(str){
             console.error(str);
+        },
+
+        short: function(varname){
+            window[varname] = jUri;
         }
     
     }
