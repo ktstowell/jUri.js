@@ -14,6 +14,16 @@ var jUri = (function( window ){
         window.console.error = window.console.warn = window.console.debug = window.console.log;
     }
 
+    var nav = window.navigator,
+    appCodeName = nav.appCodeName,
+    appName = nav.appName,
+    appVersion = nav.appVersion,
+    language = nav.language,
+    mimeTypes = nav.mimeTypes,
+    platform = nav.platform,
+    plugins = nav.plugins,
+    userAgent = nav.userAgent;
+
     window.jUriReady = function( callback ){
         if( !document.body || !window.jUri ){
             return setTimeout('window.jUriReady(' + callback+ ')', 1);
@@ -134,6 +144,16 @@ var jUri = (function( window ){
             return json;
         },
         
+        navigator: navigator,
+        appCodeName: appCodeName,
+        appName: appName,
+        appVersion: appVersion,
+        language: language,
+        mimeTypes: mimeTypes,
+        platform: platform,
+        plugins: plugins,
+        userAgent: userAgent;
+
         set: function( data, fallback, newState ){
             if( history.pushState ){
 
@@ -431,6 +451,7 @@ var jUri = (function( window ){
         encode: function(str){
             return encodeURIComponent(str);
         },
+
 
         fn: {
             /* jUri.fn.checkhash();
