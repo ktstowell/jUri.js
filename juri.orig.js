@@ -109,16 +109,28 @@ var jUri = (function( window ){
         protocol: function(){
             return window.location.protocol.replace(/:$/,'');
         },
-        get: function(){
-            var obj = window.location.search,
-            getStr = obj.replace(/^\?/,''),
-            getVars = getStr.split('&'),
-            json = {};
-            
-            for( var e in getVars ){
-                var getParam = getVars[e].split('=');
-                json[ getParam[0] ] = getParam[1];
+        get: function( str ){
+
+            var getVars, json = {};
+
+            if( str && str !== '' ){
+                getVars = (str+'').replace(/^(.*?)\?/,'').split('&'
+                
+                for( var e in getVars ){
+                    var getParam = getVars[e].split('=');
+                    json[ getParam[0] ] = getParam[1];
+                }
+            } else {
+                var obj = window.location.search,
+                getStr = obj.replace(/^\?/,''),
+                getVars = getStr.split('&');
+
+                for( var e in getVars ){
+                    var getParam = getVars[e].split('=');
+                    json[ getParam[0] ] = getParam[1];
+                }
             }
+
             return json;
         },
         
@@ -269,6 +281,8 @@ var jUri = (function( window ){
         },
 
 
+        //.parseAsGet() is deprecated, use .get() instead
+
         parseAsGet: function( str ){
             var getVars = (str+'').replace(/^(.*?)\?/,'').split('&'),
             
@@ -278,6 +292,8 @@ var jUri = (function( window ){
                 var getParam = getVars[e].split('=');
                 json[ getParam[0] ] = getParam[1];
             }
+
+            window.console.warn('jUri.parseAsGet(str) is deprecated, use jUri.get(str) instead')
 
             return json;
         },

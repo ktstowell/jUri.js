@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>jUri API</title>
+	<title>jUri documentation</title>
 </head>
 
 <script src="juri.min.js"></script>
@@ -24,8 +24,10 @@
 <body>
 
 	<hgroup>
-		<h1>jUri API</h1>
+		<h1>jUri documentation</h1>
 	</hgroup>
+
+	<p>Version 0.3</p>
 
 	<ul>
 		<li><a href="#set">.set()</a></li>
@@ -34,12 +36,20 @@
 		<li><a href="#hashchange">.hashchange()</a></li>
 		<li><a href="#ishttp">.isHTTP()</a></li>
 		<li><a href="#ishttps">.isHTTPS()</a></li>
-		<li><a href="#parseasget">.parseAsGet()</a></li>
 		<li><a href="#redirect">.redirect()</a></li>
 		<li><a href="#reload">.reload()</a></li>
 		<li><a href="#isfile">.isFile()</a></li>
 		<li><a href="#anchorexists">.anchorExists()</a></li>
 		<li><a href="#animateanchorlinks">.animateAnchorLinks()</a></li>
+		<li><a href="#host">.host()</a></li>
+		<li><a href="#hostname">.hostname()</a></li>
+		<li><a href="#href">.href()</a></li>
+		<li><a href="#pathname">.pathname()</a></li>
+		<li><a href="#port">.port()</a></li>
+		<li><a href="#protocol">.protocol()</a></li>
+		<li><a href="#get">.get()</a></li>
+		<li><a href="#back">.back()</a></li>
+		<li><a href="#parseasget">.parseAsGet()</a></li>
 	</ul>
 
 	<br/>
@@ -127,18 +137,7 @@
 	</div>
 	<a href="#">Scroll to top</a>
 	<br/>
-	<hr data-name="parseasget"//>
 
-	<h3>.parseAsGet()</h3>
-	<div class="spec">
-	<code>
-		jUri.parseAsGet( getstring )
-	</code>
-	<p><b>getstring</b> A string like '?foo=bar&b=f'<br/>
-		Returns a map of the vars passed in the string
-	</p>
-	</div>
-	<a href="#">Scroll to top</a>
 	<br/>
 	<hr data-name="redirect"//>
 
@@ -172,7 +171,7 @@
 	<code>
 		jUri.isFile( [callback] )
 	</code>
-	<p>This function check if the current url is a file-url (but doesn't check if the file exists)<br/>
+	<p>This function checks if the current url is a file-url (but doesn't check if the file exists)<br/>
 		<b>callback</b> A function to be executed if the url is a file-url
 	</p>
 	</div>
@@ -202,6 +201,122 @@
 	<p>This function set an animate scrolling when a link like <a href="#foo">Bar</a> is clicked (an there is an anchor like <a name="foo"></a>)<br/>
 		<b>anchors</b> The anchor name's to be animated, separated by ','. The string can be '*' to animate all the anchors<br/>
 		<b>changehash</b> A boolean, if true, the hash is changed after each scroll
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="host"/>
+
+	<h3>.host()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.host( )<br/>
+	</code>
+	<p>Returns window.location.host</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="hostname"/>
+
+	<h3>.hostname()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.hostname( )
+	</code>
+	<p>Returns window.location.hostname</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="href"/>
+
+	<h3>.href()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.href( )<br/>
+	</code>
+	<p>Returns window.location.href</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="pathname"/>
+
+	<h3>.pathname()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.pathname( )
+	</code>
+	<p>Returns window.location.pathname</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="port"/>
+
+	<h3>.port()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.host( )<br/>
+	</code>
+	<p>Returns window.location.port</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="protocol"/>
+
+	<h3>.protocol()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.protocol( )
+	</code>
+	<p>Returns window.location.protocol</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="get"/>
+
+	<h3>.get()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.get( )<br/>
+		jUri.get( str )
+	</code>
+	<p>Returns a map of the GET vars in the current url. If <b>str</b> is passed as an argument, .get() tries to convert it in a map<br/>
+		<b>str</b> A string like '?foo=bar&amp;b=f'</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<hr data-name="back"/>
+
+	<h3>.back()</h3>
+		<i>Since 0.2</i>
+	<div class="spec">
+	<code>
+		jUri.back( [int][, fallback] )
+	</code>
+	<p>Calls window.history.back()<br/>
+		<b>int</b> Number of pages to go back in the history<br/>
+		<b>fallback</b> A function to execute if it fails</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<br/><br/>
+
+	<hr data-name="parseasget"/>
+
+	<h3>.parseAsGet()</h3>
+		<i>Deprecated in 0.3, use <a href="#get">.get()</a> instead</i>
+	<div class="spec">
+	<code>
+		jUri.parseAsGet( getstring )
+	</code>
+	<p><b>getstring</b> A string like '?foo=bar&amp;b=f'<br/>
+		Returns a map of the vars passed in the string
 	</p>
 	</div>
 	<a href="#">Scroll to top</a>
