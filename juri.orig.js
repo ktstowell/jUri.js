@@ -1,4 +1,4 @@
-/* jUri v0.2
+/* jUri v0.3
 Mini-javascript library for handling url functions
 jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
 You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
@@ -13,28 +13,6 @@ var jUri = (function( window ){
         window.console = { log: function(str) { log(str) } };
         window.console.error = window.console.warn = window.console.debug = window.console.log;
     }
-
-    var loc = window.location,
-    host = loc.host,
-    hostname = loc.hostname,
-    href = loc.href,
-    pathname = loc.pathname,
-    port = loc.port,
-    protocol = loc.protocol.replace(/:$/,''),
-    get = (function(obj){
-
-        var getStr = obj.replace(/^\?/,''),
-        getVars = getStr.split('&'),
-        json = {};
-        
-        for( var e in getVars ){
-            var getParam = getVars[e].split('=');
-            json[ getParam[0] ] = getParam[1];
-        }
-
-        return json;
-
-    })(loc.search);
 
     window.jUriReady = function( callback ){
         if( !document.body || !window.jUri ){
@@ -113,13 +91,36 @@ var jUri = (function( window ){
         
     return {
         
-        host: host,
-        hostname: hostname,
-        href: href,
-        pathname: pathname,
-        port: port,
-        protocol: protocol,
-        get: get,
+        host: function(){
+            return window.location.host;
+        },
+        hostname: function(){
+            return window.location.hostname;
+        },
+        href: function(){
+            return window.location.href;
+        },
+        pathname: function(){
+            return window.location.pathname;
+        },
+        port: function(){
+            return window.location.port;
+        },
+        protocol: function(){
+            return window.location.protocol.replace(/:$/,'');
+        },
+        get: function(){
+            var obj = window.location.search,
+            getStr = obj.replace(/^\?/,''),
+            getVars = getStr.split('&'),
+            json = {};
+            
+            for( var e in getVars ){
+                var getParam = getVars[e].split('=');
+                json[ getParam[0] ] = getParam[1];
+            }
+            return json;
+        },
         
         set: function( data, fallback, newState ){
             if( history.pushState ){
