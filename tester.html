@@ -6,16 +6,20 @@
 	<script src="juri.orig.js"></script>
 
 	<script>
-		jUri.hashchange(function(){
+		jUri.hashchange(function(e){
 			alert('The hash was changed!');
 
 			jUri.set({
 				//title:'The hash was changed!',
-				url:'/jUri/tester.html'
+				url:e.oldHash
 			}, function(){
 				alert('Your browser doesn\'t support history.pushState');
 			});
 
+		});
+
+		jUri.urlchange(function(e){
+			alert('The url is now "'+e.newUrl+'"!');
 		});
 
 		jUri.animateAnchorLinks('*', false);
@@ -54,6 +58,7 @@
 		<li><a href="#ptag">Go to the data-name test</a></li>
 		<li onclick="jUri.title(['Hello','World'])">Start title changing</li>
 		<li onclick="jUri.title().stop('jUri')">Stop title changing</li>
+		<li onclick="jUri.set('hello')">Fire .urlchange event</li>
 
 	</ul>
 

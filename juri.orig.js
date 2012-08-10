@@ -121,12 +121,12 @@ var jUri = (function( window ){
         },
         get: function( str ){
 
-            var getVars, json = {};
+            var getVars, e, json = {};
 
             if( str && str !== '' ){
-                getVars = (str+'').replace(/^(.*?)\?/,'').split('&'
+                getVars = (str+'').replace(/^(.*?)\?/,'').split('&');
                 
-                for( var e in getVars ){
+                for( e in getVars ){
                     var getParam = getVars[e].split('=');
                     json[ getParam[0] ] = getParam[1];
                 }
@@ -135,7 +135,7 @@ var jUri = (function( window ){
                 getStr = obj.replace(/^\?/,''),
                 getVars = getStr.split('&');
 
-                for( var e in getVars ){
+                for( e in getVars ){
                     var getParam = getVars[e].split('=');
                     json[ getParam[0] ] = getParam[1];
                 }
@@ -152,7 +152,7 @@ var jUri = (function( window ){
         mimeTypes: mimeTypes,
         platform: platform,
         plugins: plugins,
-        userAgent: userAgent;
+        userAgent: userAgent,
 
         set: function( data, fallback, newState ){
             if( history.pushState ){
@@ -268,6 +268,21 @@ var jUri = (function( window ){
             }
             
             this.fn.checkhash( this.hash(), scroll, callback );
+        },
+
+
+        /* jUri.urlchange(function(e){
+        //bind a function to the window.onhashchange event:
+        alert('The previous url was "'+e.oldUrl+'" and now it\'s "'+e.newUrl+'"');
+        }, bool);
+        */
+        
+        urlchange: function( callback, fireOnHashChange ){
+            if( !document.body ){
+                return setTimeout('jUri.urlchange(' + callback +', ' + fireOnHashChange + ')', 1);
+            }
+            
+            this.fn.checkurl( this.href(), callback, + fireOnHashChange );
         },
         
         
@@ -475,6 +490,26 @@ var jUri = (function( window ){
                     }
                 }
                 setTimeout('jUri.fn.checkhash("' + jUri.hash() + '", ' + prevScroll + ', ' + callback + ')', 1);
+            },
+
+            /* jUri.fn.checkurl();
+            USED BY jUri.urlchange() event
+            */
+            
+            checkurl: function( str, callback, fireOnHashChange ){
+                if( jUri.href() != str ){
+
+                    if( !fireOnHashChange ){
+                        if( jUri.href().split('#')[0] == str.split('#')[0] ){
+                            return setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
+                                , ' + fireOnHashChange +')', 1);
+                        }
+                    }
+
+                    callback( new urlChangeEvent( str, jUri.href() ) );
+                }
+                setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
+                                , ' + fireOnHashChange +')', 1);
             },
             
             
@@ -721,6 +756,12 @@ var jUri = (function( window ){
 hashChangeEvent = function( prevHash, newHash ){
     this.oldHash = prevHash || "#";
     this.newHash = newHash || "#";
+    this.newLoc = window.location;
+};
+
+urlChangeEvent = function( prevUrl, newUrl ){
+    this.oldUrl = prevUrl || "#";
+    this.newUrl = newUrl || "#";
     this.newLoc = window.location;
 };
 
