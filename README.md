@@ -10,8 +10,7 @@ Email me:
 efz1005[at]gmail[dot]com
 
 Still in alpha version!
-_____________________
-
+-----------
 Please be patient.
 
 
