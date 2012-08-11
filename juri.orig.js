@@ -211,24 +211,19 @@ var jUri = (function( window ){
                 }
             }
 
-            else if( typeof text == 'object' ){
+            else if(typeof text == 'object' ){
                 //Periodic title changing
                 if( !ms ) ms = 1500;
 
                 jUri.fx.changeTitle.init( text, ms );
-
-                return {
-                    stop: function( str ){
-                        jUri.fx.changeTitle.stop();
-                        if( str != '' ){
-                            jUri.title( str );
-                        }
-                    }
-                }
-
             }
 
-            
+            return {
+                stop: function( str ){
+                    jUri.fx.changeTitle.stop();
+                    jUri.title( str );
+                }
+            }
         },
 
         /* jUri.hash();// returns the current hash
