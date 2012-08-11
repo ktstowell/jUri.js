@@ -1,4 +1,4 @@
-/* jUri v0.3
+/* jUri v0.4
 Mini-javascript library for handling url functions
 jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
 You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
@@ -72,7 +72,6 @@ var jUri = (function( window ){
                 }
 
                 if( name && !jUri.anchorExists(name) ){
-                    //console.log(name)
                     var anchor = document.createElement('a');
                     anchor.name = name;
                     el.parentNode.insertBefore(anchor, el);
@@ -154,36 +153,57 @@ var jUri = (function( window ){
         plugins: plugins,
         userAgent: userAgent,
 
-        set: function( data, fallback, newState ){
+        set: function( data, fallback, newState, a ){
+
+            var forceUrlChangeEvent, url, title, object;
+
+            if( typeof fallback == 'boolean' ){
+                forceUrlChangeEvent = fallback;
+            }else{
+
+                if( typeof fallback == 'function' && typeof newState == 'boolean' ){
+                    forceUrlChangeEvent = newState;
+                    newState = a;
+                }
+
+                forceUrlChangeEvent = false;
+            }
+
             if( history.pushState ){
 
                 if( !newState ) newState = true;
 
                 if( typeof data == 'string' ){
-
-                    if( history[history.length-1] == data ){
-                        return false;
-                    }
-
-                    history.pushState( {}, '', data);
-                    jUri.fn.jUriSet = true;
+                    url = data;
+                    title = '';
+                    object = {};
                 }else{
+                    object = data.data || {};
+                    title = data.title || '';
+                    url = data.url || '';
+                }
 
-                    if( history[history.length-1] == data.url ){
+                //Some browsers don't allow to check the history,
+                //such as Firefox 14+
+                try {
+                    if( history[history.length-1] == url ){
                         return false;
                     }
+                }catch(e){}
+                
 
-                    var object = data.data || {},
-                    title = data.title || '',
-                    url = data.url || '';
-
+                if( title != '' ){
                     this.title(title);
+                }
 
-                    if( newState ){
-                        history.pushState( object, title, url);
-                    }else{
-                        history.replaceState( object, title, url);
-                    }
+
+                if( newState ){
+                    history.pushState( object, title, url);
+                }else{
+                    history.replaceState( object, title, url);
+                }
+                
+                if( !forceUrlChangeEvent ){
                     jUri.fn.jUriSet = true;
                 }
 
@@ -463,7 +483,6 @@ var jUri = (function( window ){
 
             //iterate the linkList and bind a click event to each link
             for( var i in linkList ){
-                //console.log(linkList[i])
                 jUri.fn.addEvent(linkList[i], 'click', function(e){
                     //Disable default scrolling
                     e.preventDefault();
@@ -487,12 +506,8 @@ var jUri = (function( window ){
 
             for( var e=0,l=elements.length;e<l;e++ ){
                 el = elements[e];
-
                 //Check if we haven't bound the element to the url changes
                 if( el && typeof el.bound == 'undefined' ){
-
-                    //console.log(el)
-
                     //Save the first copy
                     html = el.innerHTML;
 
@@ -507,11 +522,9 @@ var jUri = (function( window ){
 
                     var elLength = jUri.fn.boundElements.length;
 
-                    jUri.fn.boundElements[length] = el;
+                    jUri.fn.boundElements[elLength] = el;
                 }
             }
-
-            //console.log(jUri.fn.boundElements)
 
             if( elements.length ){
                 //Bind the urlchange events
@@ -525,7 +538,7 @@ var jUri = (function( window ){
                         realElement = jUri.fn.select(selector)[0];
 
                         //Check if there is a copy of this url
-                        for( var i in copies ){
+                        for( var i=0,l=copies.length;i<l;i++ ){
                             if( copies[i].url == ev.newUrl ){
                                 realElement.innerHTML = copies[i].html;
                                 break;
@@ -545,7 +558,7 @@ var jUri = (function( window ){
                         html = realElement.innerHTML;
 
                         //Check if there is a copy of this url
-                        for( var i in copies ){
+                        for( var i=0,l=copies.length;i<l;i++ ){
                             if( copies[i].url == ev.newUrl ){
                                 saved = true;
                                 break;
@@ -560,8 +573,6 @@ var jUri = (function( window ){
                                 html: html
                             };
                         }
-
-                        //console.log(el.urlCopies)
                     }
                 },false,true);
             }
@@ -621,21 +632,28 @@ var jUri = (function( window ){
                 if ( xmlhttp.readyState == 4 && xmlhttp.status == 200 ){
                     
                     if( data.target ){
+                        var targets = jUri.fn.select(data.target),
+                        response = xmlhttp.responseText;
+
                         if( data.bindToUrl ){
                             jUri.bindToUrl( data.target );
                         }
 
-                        var target = jUri.fn.select(data.target)[0],
-                        response = xmlhttp.responseText;
-
-                        target.innerHTML = response;
+                        for( var i=0,l=targets.length;i<l;i++ ){
+                            targets[i].innerHTML = response;
+                        }   
                     }
-
-                    callback();
 
                     if( data.setUrl ){
-                        jUri.set( data.setUrl );
+                        if( data.bindToUrl && data.target ){
+                            //Force the HashChange event
+                            jUri.set( data.setUrl, true);
+                        }else{
+                            jUri.set( data.setUrl );
+                        }
                     }
+
+                    callback(xmlhttp);
                 }
             };
 
@@ -803,15 +821,65 @@ var jUri = (function( window ){
                     var elements = document.querySelectorAll( selectors );
 
                     return elements;
-                }
+                }/*else{
+
+                    var separated = selectors.split(','),selector;
+
+                    for( var i=0,l=separated.length;i<l;i++ ){
+                        //Trim the selector
+                        selector = separated[i].replace(/^\s* /,'').replace(/\s*$/,'');
+
+                        //No childs
+                        if( !selector.match(/^[^\s]\s+[^\s]$/) && !selector.match(/^[^\s]\s*>\s*[^\s]$/) ){
+
+                            var 
+                                class = selector.split('.')[1],
+                                id = selector.split('.').split('#')[1],
+                                tag = selector.split('#')[0];
+
+                            if( tag ){
+
+                            }
+
+                        }
+                    }
+
+                }*/
             },
 
             getSelector: function( element ){
-                if( element.id ){
-                    return '#'+element.id;
-                } else if( element.name ){
-                    return '*[name="'+element.name+'"]';
+                var tagname = element.localName,
+                id = element.getAttribute('id'),
+                nameAttr = element.getAttribute('name');
+
+                if( typeof id == 'string' ){
+                    if( jUri.fn.select( '#'+id ).length == 1 ){
+                        return '#'+id;
+                    }else{
+
+                        var elmnts = jUri.fn.select( id ),
+                        l = elmnts.length, n=0;
+
+                        //Try comparing the tags
+                        for( var i=0;i<l;i++ ){
+                            if( elmnts[i].localName == tagname ){
+                                n++;
+                            }
+                        }
+
+                        if( n==1 ){
+                            return tagname+'#'+id;
+                        }
+
+                    }
+                    
+                } else if( typeof nameAttr == 'string' ){
+                    if( jUri.fn.select( tagname+'[name="'+nameAttr+'"]' ).length == 1 ){
+                        return tagname+'[name="'+nameAttr+'"]';
+                    }
                 }
+
+                return false;
             },
 
             boundElements: []

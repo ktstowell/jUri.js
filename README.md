@@ -1,4 +1,4 @@
-jUri.js v0.3
+jUri.js v0.4
 =========
 
 Mini-javascript library for handling url functions

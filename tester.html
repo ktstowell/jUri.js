@@ -2,35 +2,32 @@
 <html>
 
 <head>
-	<title>jUri</title>
+	<meta charset="UTF-8">
+	<title>jUri  (v0.4)</title>
 	<script src="juri.orig.js"></script>
 
 	<script>
 		jUri.hashchange(function(e){
 			alert('The hash was changed!');
-
-			jUri.set({
-				//title:'The hash was changed!',
-				url:e.oldHash
-			}, function(){
-				alert('Your browser doesn\'t support history.pushState');
-			});
-
 		});
 
+		console.log('it works!')
 		jUri.urlchange(function(e){
 			alert('The url is now "'+e.newUrl+'"!');
+			if( e.newUrl.match(/hello_world/) ){
+				jUri.set(e.oldUrl);
+			}
 		});
 
 		jUri.animateAnchorLinks('*', false);
 
-		jUri.title('jUri - test document');
+		jUri.title('jUri - test document (v0.4)');
 
 		function loadReadme(){
 			jUri.ajax({
 				url:'ajax_test.txt',
 				setUrl:'/js/jUri.js/ajax_test.txt',
-				target:'#load',
+				target:'#load, p[name="load2"]',
 				bindToUrl:true
 			});
 		}
@@ -49,10 +46,10 @@
 		<h1>jUri - test document</h1>
 	</hgroup>
 
-	<p>Test passed on: Firefox 10.0.2, Opera 11.61, Chrome 17, iOS Safari 4.1</p>
+	<p>Test passed on: Firefox 10+, Opera 11.61, Chrome 17+, iOS Safari 4.1</p>
 
 	<p>Click on any list element to see its effect</p>
-
+	<p name="load2"></p>
 	<ul>
 
 		<li data-hash="changed">data-hash test</li>
@@ -67,7 +64,7 @@
 		<li><a href="#ptag">Go to the data-name test</a></li>
 		<li onclick="jUri.title(['Hello','World'])">Start title changing</li>
 		<li onclick="jUri.title().stop('Stopped!')">Stop title changing</li>
-		<li onclick="jUri.set('hello')">Fire .urlchange event</li>
+		<li onclick="jUri.set('hello_world',true)">Fire .urlchange event</li>
 		<li onclick="loadReadme()">Load ajax_test.txt using jUri.ajax()</li>
 
 	</ul>

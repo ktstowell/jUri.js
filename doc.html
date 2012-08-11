@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>jUri documentation</title>
+	<title>jUri documentation (v0.4)</title>
 </head>
 
 <script src="juri.min.js"></script>
@@ -24,70 +24,121 @@
 <body>
 
 	<hgroup>
-		<h1>jUri documentation</h1>
+		<h1>jUri documentation (v0.4)</h1>
 	</hgroup>
 
-	<p>Version 0.3</p>
+	<p>Version 0.4</p>
 
 	<ul>
-		<li><a href="#set">.set()</a></li>
-		<li><a href="#title">.title()</a></li>
-		<li><a href="#hash">.hash()</a></li>
-		<li><a href="#hashchange">.hashchange()</a></li>
-		<li><a href="#urlchange">.urlchange()</a></li>
-		<li><a href="#ishttp">.isHTTP()</a></li>
-		<li><a href="#ishttps">.isHTTPS()</a></li>
-		<li><a href="#redirect">.redirect()</a></li>
-		<li><a href="#reload">.reload()</a></li>
-		<li><a href="#isfile">.isFile()</a></li>
+		<li><a href="#ajax">.ajax()</a></li>
 		<li><a href="#anchorexists">.anchorExists()</a></li>
 		<li><a href="#animateanchorlinks">.animateAnchorLinks()</a></li>
+		<li><a href="#back">.back()</a></li>
+		<li><a href="#get">.get()</a></li>
+		<li><a href="#hash">.hash()</a></li>
+		<li><a href="#hashchange">.hashchange()</a></li>
 		<li><a href="#host">.host()</a></li>
-		<li><a href="#hostname">.hostname()</a></li>
 		<li><a href="#href">.href()</a></li>
+		<li><a href="#hostname">.hostname()</a></li>
+		<li><a href="#isfile">.isFile()</a></li>
+		<li><a href="#ishttp">.isHTTP()</a></li>
+		<li><a href="#ishttps">.isHTTPS()</a></li>
+		<li><a href="#parseasget"><i>.parseAsGet()</i></a></li>
 		<li><a href="#pathname">.pathname()</a></li>
 		<li><a href="#port">.port()</a></li>
 		<li><a href="#protocol">.protocol()</a></li>
-		<li><a href="#get">.get()</a></li>
-		<li><a href="#back">.back()</a></li>
-		<li><a href="#parseasget">.parseAsGet()</a></li>
+		<li><a href="#redirect">.redirect()</a></li>
+		<li><a href="#reload">.reload()</a></li>
+		<li><a href="#set">.set()</a></li>
+		<li><a href="#title">.title()</a></li>
+		<li><a href="#urlchange">.urlchange()</a></li>
 	</ul>
-
 	<br/>
-	<hr data-name="set"/>
 
-	<h3>.set()</h3>
+
+	<hr data-name="ajax"/>
+	<h3>.ajax()</h3>
+	<i>Updated in 0.4</i>
 	<div class="spec">
 	<code>
-		jUri.set( url [, fallback] )<br/>
-		jUri.set( object [, fallback] )
+		jUri.ajax( url )<br/>
+		jUri.ajax( data )
 	</code>
-	<p><b>url</b> A string with the url to set<br/>
-	   <b>fallback</b> A function to be executed if the browser doesn't support url changes<br/>
-	   <b>object</b> A map of these three properties:<br/>
+	<p>
+	   <b>url</b> The url to load, the function will return the xmlhttpRequest method<br/>
+	   <b>data</b> A map of these properties:<br/>
 	   <ul>
-	   	<li><b>data</b> An object to be pushed into the history.pushState function</li>
-	   	<li><b>title</b> The new title of the window</li>
-	   	<li><b>url</b> The new url of the window</li>
+	   	<li><b>url</b> Required, the url to load</li>
+	   	<li><b>method</b> GET by default</li>
+	   	<li><b>async</b> True by default</li>
+	   	<li><b>async</b> True by default</li>
+	   	<li><b>callback</b> A function to execute when the page has loaded. It can get the xmlhttpRequest object using an argument</li>
+	   	<li><b>target</b> A css selector of the element that will load the content (not needed)</li>
+	   	<li><b>bindToUrl</b> A boolean, only needed if a target is set and also an url</li>
+	   	<li><b>setUrl</b> An url to set in the browser's bar</li>
    	   </ul>
 	</p>
 	</div>
 	<a href="#">Scroll to top</a>
 	<br/>
-	<hr data-name="title"/>
 
-	<h3>.title()</h3>
+	<hr data-name="anchorexists"/>
+	<h3>.anchorExists()</h3>
 	<div class="spec">
 	<code>
-		jUri.title( title )
+		jUri.anchorExists( name [, callback] )
 	</code>
-	<p><b>title</b> A string with the new window title
+	<p><b>name</b> A string to search an anchor like <a name="name"></a><br/>
+		<b>callback</b> A function to be executed if the anchor exists (the anchor is passed as argument of the function)
 	</p>
 	</div>
 	<a href="#">Scroll to top</a>
 	<br/>
-	<hr data-name="hash"/>
 
+	<hr data-name="animateanchorlinks"/>
+	<h3>.animateAnchorLinks()</h3>
+	<div class="spec">
+	<code>
+		jUri.animateAnchorLinks( )<br/>
+		jUri.animateAnchorLinks( [anchors] [, changehash] )
+	</code>
+	<p>This function set an animate scrolling when a link like <a href="#foo">Bar</a> is clicked (an there is an anchor like <a name="foo"></a>)<br/>
+		<b>anchors</b> The anchor name's to be animated, separated by ','. The string can be '*' to animate all the anchors<br/>
+		<b>changehash</b> A boolean, if true, the hash is changed after each scroll
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="back"/>
+	<h3>.back()</h3>
+		<i>Since 0.2</i>
+	<div class="spec">
+	<code>
+		jUri.back( [int][, fallback] )
+	</code>
+	<p>Calls window.history.back()<br/>
+		<b>int</b> Number of pages to go back in the history<br/>
+		<b>fallback</b> A function to execute if it fails</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="get"/>
+	<h3>.get()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.get( )<br/>
+		jUri.get( str )
+	</code>
+	<p>Returns a map of the GET vars in the current url. If <b>str</b> is passed as an argument, .get() tries to convert it in a map<br/>
+		<b>str</b> A string like '?foo=bar&amp;b=f'</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="hash"/>
 	<h3>.hash()</h3>
 	<div class="spec">
 	<code>
@@ -102,8 +153,8 @@
 	</div>
 	<a href="#">Scroll to top</a>
 	<br/>
-	<hr data-name="hashchange"/>
 
+	<hr data-name="hashchange"/>
 	<h3>.hashchange()</h3>
 	<div class="spec">
 	<code>
@@ -115,16 +166,50 @@
 	<a href="#">Scroll to top</a>
 	<br/>
 
-	<hr data-name="urlchange"/>
-
-	<h3>.urlchange()</h3>
-		<i>New in 0.3</i>
+	<hr data-name="host"/>
+	<h3>.host()</h3>
+		<i>Updated in 0.3</i>
 	<div class="spec">
 	<code>
-		jUri.urlchange( callback, fireOnHashChange )
+		jUri.host( )<br/>
 	</code>
-	<p><b>callback</b> A function to be executed when the url changes<br/>
-		<b>fireOnHashChange</b> A bool, false by default
+	<p>Returns window.location.host</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="hostname"/>
+	<h3>.hostname()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.hostname( )
+	</code>
+	<p>Returns window.location.hostname</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="href"/>
+	<h3>.href()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.href( )<br/>
+	</code>
+	<p>Returns window.location.href</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="isfile"/>
+	<h3>.isFile()</h3>
+	<div class="spec">
+	<code>
+		jUri.isFile( [callback] )
+	</code>
+	<p>This function checks if the current url is a file-url (but doesn't check if the file exists)<br/>
+		<b>callback</b> A function to be executed if the url is a file-url
 	</p>
 	</div>
 	<a href="#">Scroll to top</a>
@@ -142,8 +227,8 @@
 	</div>
 	<a href="#">Scroll to top</a>
 	<br/>
-	<hr data-name="ishttps"/>
 
+	<hr data-name="ishttps"/>
 	<h3>.isHTTPS()</h3>
 	<div class="spec">
 	<code>
@@ -155,177 +240,7 @@
 	<a href="#">Scroll to top</a>
 	<br/>
 
-	<br/>
-	<hr data-name="redirect"//>
-
-	<h3>.redirect()</h3>
-	<div class="spec">
-	<code>
-		jUri.redirect( url [, timeout] )
-	</code>
-	<p><b>url</b> The url to redirect to<br/>
-	   <b>timeout</b> An integer in miliseconds to redirect after that time
-	</p>
-	</div>
-	<a href="#">Scroll to top</a>
-	<br/>
-	<hr data-name="reload"//>
-
-	<h3>.reload()</h3>
-	<div class="spec">
-	<code>
-		jUri.redirect( [timeout] )
-	</code>
-	<p><b>timeout</b> An integer in miliseconds to reload after that time
-	</p>
-	</div>
-	<a href="#">Scroll to top</a>
-	<br/>
-	<hr data-name="isfile"//>
-
-	<h3>.isFile()</h3>
-	<div class="spec">
-	<code>
-		jUri.isFile( [callback] )
-	</code>
-	<p>This function checks if the current url is a file-url (but doesn't check if the file exists)<br/>
-		<b>callback</b> A function to be executed if the url is a file-url
-	</p>
-	</div>
-	<a href="#">Scroll to top</a>
-	<br/>
-	<hr data-name="anchorexists"//>
-
-	<h3>.anchorExists()</h3>
-	<div class="spec">
-	<code>
-		jUri.anchorExists( name [, callback] )
-	</code>
-	<p><b>name</b> A string to search an anchor like <a name="name"></a><br/>
-		<b>callback</b> A function to be executed if the anchor exists (the anchor is passed as argument of the function)
-	</p>
-	</div>
-	<a href="#">Scroll to top</a>
-	<br/>
-	<hr data-name="animateanchorlinks"//>
-
-	<h3>.animateAnchorLinks()</h3>
-	<div class="spec">
-	<code>
-		jUri.animateAnchorLinks( )<br/>
-		jUri.animateAnchorLinks( [anchors] [, changehash] )
-	</code>
-	<p>This function set an animate scrolling when a link like <a href="#foo">Bar</a> is clicked (an there is an anchor like <a name="foo"></a>)<br/>
-		<b>anchors</b> The anchor name's to be animated, separated by ','. The string can be '*' to animate all the anchors<br/>
-		<b>changehash</b> A boolean, if true, the hash is changed after each scroll
-	</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="host"/>
-
-	<h3>.host()</h3>
-		<i>Updated in 0.3</i>
-	<div class="spec">
-	<code>
-		jUri.host( )<br/>
-	</code>
-	<p>Returns window.location.host</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="hostname"/>
-
-	<h3>.hostname()</h3>
-		<i>Updated in 0.3</i>
-	<div class="spec">
-	<code>
-		jUri.hostname( )
-	</code>
-	<p>Returns window.location.hostname</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="href"/>
-
-	<h3>.href()</h3>
-		<i>Updated in 0.3</i>
-	<div class="spec">
-	<code>
-		jUri.href( )<br/>
-	</code>
-	<p>Returns window.location.href</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="pathname"/>
-
-	<h3>.pathname()</h3>
-		<i>Updated in 0.3</i>
-	<div class="spec">
-	<code>
-		jUri.pathname( )
-	</code>
-	<p>Returns window.location.pathname</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="port"/>
-
-	<h3>.port()</h3>
-		<i>Updated in 0.3</i>
-	<div class="spec">
-	<code>
-		jUri.host( )<br/>
-	</code>
-	<p>Returns window.location.port</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="protocol"/>
-
-	<h3>.protocol()</h3>
-		<i>Updated in 0.3</i>
-	<div class="spec">
-	<code>
-		jUri.protocol( )
-	</code>
-	<p>Returns window.location.protocol</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="get"/>
-
-	<h3>.get()</h3>
-		<i>Updated in 0.3</i>
-	<div class="spec">
-	<code>
-		jUri.get( )<br/>
-		jUri.get( str )
-	</code>
-	<p>Returns a map of the GET vars in the current url. If <b>str</b> is passed as an argument, .get() tries to convert it in a map<br/>
-		<b>str</b> A string like '?foo=bar&amp;b=f'</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<hr data-name="back"/>
-
-	<h3>.back()</h3>
-		<i>Since 0.2</i>
-	<div class="spec">
-	<code>
-		jUri.back( [int][, fallback] )
-	</code>
-	<p>Calls window.history.back()<br/>
-		<b>int</b> Number of pages to go back in the history<br/>
-		<b>fallback</b> A function to execute if it fails</p>
-	</div>
-	<a href="#">Scroll to top</a>
-
-	<br/><br/>
-
 	<hr data-name="parseasget"/>
-
 	<h3>.parseAsGet()</h3>
 		<i>Deprecated in 0.3, use <a href="#get">.get()</a> instead</i>
 	<div class="spec">
@@ -338,6 +253,122 @@
 	</div>
 	<a href="#">Scroll to top</a>
 
+	<hr data-name="pathname"/>
+	<h3>.pathname()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.pathname( )
+	</code>
+	<p>Returns window.location.pathname</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="port"/>
+
+	<h3>.port()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.host( )<br/>
+	</code>
+	<p>Returns window.location.port</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="protocol"/>
+	<h3>.protocol()</h3>
+		<i>Updated in 0.3</i>
+	<div class="spec">
+	<code>
+		jUri.protocol( )
+	</code>
+	<p>Returns window.location.protocol</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="redirect"/>
+	<h3>.redirect()</h3>
+	<div class="spec">
+	<code>
+		jUri.redirect( url [, timeout] )
+	</code>
+	<p><b>url</b> The url to redirect to<br/>
+	   <b>timeout</b> An integer in miliseconds to redirect after that time
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+
+	<br/>
+	<hr data-name="reload"/>
+	<h3>.reload()</h3>
+	<div class="spec">
+	<code>
+		jUri.redirect( [timeout] )
+	</code>
+	<p><b>timeout</b> An integer in miliseconds to reload after that time
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="set"/>
+	<h3>.set()</h3>
+	<i>Updated in 0.4</i>
+	<div class="spec">
+	<code>
+		jUri.set( url [, fallback] )<br/>
+		jUri.set( object [, fallback][, newState] )
+		jUri.set( object [, fallback][, forceUrlChangeEvent][, newState] )
+	</code>
+	<p><b>url</b> A string with the url to set<br/>
+	   <b>fallback</b> A function to be executed if the browser doesn't support url changes<br/>
+	   <b>object</b> A map of these three properties:<br/>
+	   <ul>
+	   	<li><b>data</b> An object to be pushed into the history.pushState function</li>
+	   	<li><b>title</b> The new title of the window</li>
+	   	<li><b>url</b> The new url of the window</li>
+   	   </ul><br/>
+   	   <b>newState</b> A bool, true by default. If it's true, the method will be history.pushState, else history.replaceState.<br/>
+   	   <b>forceUrlChangeEvent</b> If there's set an <a href="#urlchange">.urlchange()</a> listener with fireOnJUriSet=false, this will fire anyway
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+
+	<hr data-name="title"/>
+	<h3>.title()</h3>
+	<div class="spec">
+	<code>
+		jUri.title( title )<br/>
+		jUri.title( array[, ms] )<br/>
+		//It returns always a .stop() method, check tester.html to see its use
+	</code>
+	<p><b>title</b> A string with the new window title<br/>
+	   <b>array</b> An set of titles to change to periodically<br/>
+	   <b>ms</b> An integer in miliseconds to set the period of title changing
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
+	<br/>
+	
+	<hr data-name="urlchange"/>
+	<h3>.urlchange()</h3>
+		<i>New in 0.3<br/>
+			fireOnJUriSet new in 0.4</i>
+	<div class="spec">
+	<code>
+		jUri.urlchange( callback[, fireOnHashChange][, fireOnJUriSet] )
+	</code>
+	<p><b>callback</b> A function to be executed when the url changes<br/>
+		<b>fireOnHashChange</b> A bool, false by default<br/>
+		<b>fireOnJUriSet</b> A bool, false by default. The event will not fire if the url is changed using jUri.set('')
+	</p>
+	</div>
+	<a href="#">Scroll to top</a>
 </body>
 
 </html>
