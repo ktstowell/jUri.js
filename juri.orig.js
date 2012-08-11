@@ -166,6 +166,7 @@ var jUri = (function( window ){
                     }
 
                     history.pushState( {}, '', data);
+                    jUri.fn.jUriSet = true;
                 }else{
 
                     if( history[history.length-1] == data.url ){
@@ -183,6 +184,7 @@ var jUri = (function( window ){
                     }else{
                         history.replaceState( object, title, url);
                     }
+                    jUri.fn.jUriSet = true;
                 }
 
             }else if( fallback && typeof fallback == 'function' ){
@@ -290,12 +292,12 @@ var jUri = (function( window ){
         }, bool);
         */
         
-        urlchange: function( callback, fireOnHashChange ){
+        urlchange: function( callback, fireOnHashChange, fireOnJUriSet ){
             if( !document.body ){
-                return setTimeout('jUri.urlchange(' + callback +', ' + fireOnHashChange + ')', 1);
+                return setTimeout('jUri.urlchange(' + callback +', ' + fireOnHashChange + ', ' + fireOnJUriSet + ')', 1);
             }
             
-            this.fn.checkurl( this.href(), callback, + fireOnHashChange );
+            this.fn.checkurl( this.href(), callback, fireOnHashChange, fireOnJUriSet );
         },
         
         
@@ -483,8 +485,8 @@ var jUri = (function( window ){
         bindToUrl: function( selectors ){
             var elements = jUri.fn.select( selectors ), el, html;
 
-            for( var e in elements ){
-                el = elements[e][0];
+            for( var e=0,l=elements.length;e<l;e++ ){
+                el = elements[e];
 
                 //Check if we haven't bound the element to the url changes
                 if( el && typeof el.bound == 'undefined' ){
@@ -512,7 +514,27 @@ var jUri = (function( window ){
             //console.log(jUri.fn.boundElements)
 
             if( elements.length ){
-                //Bind the urlchange event
+                //Bind the urlchange events
+
+                //Get old copy
+                jUri.urlchange(function(ev){
+                    for( var o in jUri.fn.boundElements ){
+                        var el = jUri.fn.boundElements[o],
+                        copies = el.urlCopies,
+                        selector = el.selector,
+                        realElement = jUri.fn.select(selector)[0];
+
+                        //Check if there is a copy of this url
+                        for( var i in copies ){
+                            if( copies[i].url == ev.newUrl ){
+                                realElement.innerHTML = copies[i].html;
+                                break;
+                            }
+                        }
+                    }
+                });
+
+                //Save copy
                 jUri.urlchange(function(ev){
                     for( var o in jUri.fn.boundElements ){
                         var el = jUri.fn.boundElements[o],
@@ -520,13 +542,11 @@ var jUri = (function( window ){
                         copies = el.urlCopies, length,
                         selector = el.selector,
                         realElement = jUri.fn.select(selector)[0],
-                        html = realElement[0].innerHTML;
+                        html = realElement.innerHTML;
 
                         //Check if there is a copy of this url
                         for( var i in copies ){
                             if( copies[i].url == ev.newUrl ){
-                                //alert(1);
-                                realElement[0].innerHTML = copies[i].html;
                                 saved = true;
                                 break;
                             }
@@ -543,14 +563,87 @@ var jUri = (function( window ){
 
                         //console.log(el.urlCopies)
                     }
-
-                    
-                });
+                },false,true);
             }
 
             return;
         },
 
+
+        ajax: function( data ){
+
+            if( typeof data == 'object' ){
+                if( data.url ){
+                    url = data.url;
+                }else{
+                    return false;
+                }
+
+                if( data.method ){
+                    method = data.method;
+                }else{
+                    method = 'GET';
+                }
+
+                if( data.async ){
+                    async = data.async;
+                }else{
+                    async = true;
+                }
+
+                if( data.callback && typeof data.callback == 'function' ){
+                    callback = data.callback;
+                }else{
+                    callback = new Function();
+                }
+            } else if( typeof data == 'string' ){
+                url = data;
+                method = 'GET';
+                async = true;
+            }else{
+                return false;
+            }
+
+
+            //Create the xmlhttpRequest object
+            var xmlhttp;
+            if(window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();//Firefox, Safari, Opera, Chrome...
+            }else if(window.ActiveXObject) {//Internet Explorer
+                try{
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                } catch(e) {
+                    xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+                }
+            }
+
+            xmlhttp.onreadystatechange = function(){
+                if ( xmlhttp.readyState == 4 && xmlhttp.status == 200 ){
+                    
+                    if( data.target ){
+                        if( data.bindToUrl ){
+                            jUri.bindToUrl( data.target );
+                        }
+
+                        var target = jUri.fn.select(data.target)[0],
+                        response = xmlhttp.responseText;
+
+                        target.innerHTML = response;
+                    }
+
+                    callback();
+
+                    if( data.setUrl ){
+                        jUri.set( data.setUrl );
+                    }
+                }
+            };
+
+            xmlhttp.open(method,url,async);
+            xmlhttp.send(null);
+
+            return xmlhttp;
+        },
 
         fn: {
             /* jUri.fn.checkhash();
@@ -576,24 +669,36 @@ var jUri = (function( window ){
                 setTimeout('jUri.fn.checkhash("' + jUri.hash() + '", ' + prevScroll + ', ' + callback + ')', 1);
             },
 
+            jUriSet: false,
+
             /* jUri.fn.checkurl();
             USED BY jUri.urlchange() event
             */
             
-            checkurl: function( str, callback, fireOnHashChange ){
+            checkurl: function( str, callback, fireOnHashChange, fireOnJUriSet ){
                 if( jUri.href() != str ){
+
+                    if( !fireOnJUriSet ){
+                        if( jUri.fn.jUriSet ){
+                            jUri.fn.jUriSet = false;
+                            return setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
+                                , ' + fireOnHashChange +', ' + fireOnJUriSet + ')', 1);
+                        }
+                    }else{
+                        jUri.fn.jUriSet = false;
+                    }
 
                     if( !fireOnHashChange ){
                         if( jUri.href().split('#')[0] == str.split('#')[0] ){
                             return setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
-                                , ' + fireOnHashChange +')', 1);
+                                , ' + fireOnHashChange +', ' + fireOnJUriSet + ')', 1);
                         }
                     }
 
                     callback( new urlChangeEvent( str, jUri.href() ) );
                 }
                 setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
-                                , ' + fireOnHashChange +')', 1);
+                                , ' + fireOnHashChange +', ' + fireOnJUriSet + ')', 1);
             },
             
             
@@ -697,7 +802,7 @@ var jUri = (function( window ){
                 if( document.querySelectorAll ){
                     var elements = document.querySelectorAll( selectors );
 
-                    return [elements];
+                    return elements;
                 }
             },
 

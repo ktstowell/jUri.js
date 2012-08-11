@@ -25,6 +25,15 @@
 		jUri.animateAnchorLinks('*', false);
 
 		jUri.title('jUri - test document');
+
+		function loadReadme(){
+			jUri.ajax({
+				url:'ajax_test.txt',
+				setUrl:'/js/jUri.js/ajax_test.txt',
+				target:'#load',
+				bindToUrl:true
+			});
+		}
 	</script>
 
 	<style>
@@ -57,10 +66,13 @@
 
 		<li><a href="#ptag">Go to the data-name test</a></li>
 		<li onclick="jUri.title(['Hello','World'])">Start title changing</li>
-		<li onclick="jUri.title().stop('jUri')">Stop title changing</li>
+		<li onclick="jUri.title().stop('Stopped!')">Stop title changing</li>
 		<li onclick="jUri.set('hello')">Fire .urlchange event</li>
+		<li onclick="loadReadme()">Load ajax_test.txt using jUri.ajax()</li>
 
 	</ul>
+
+	<div id="load"></div>
 
 	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
