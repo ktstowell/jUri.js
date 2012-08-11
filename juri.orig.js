@@ -160,8 +160,18 @@ var jUri = (function( window ){
                 if( !newState ) newState = true;
 
                 if( typeof data == 'string' ){
+
+                    if( history[history.length-1] == data ){
+                        return false;
+                    }
+
                     history.pushState( {}, '', data);
                 }else{
+
+                    if( history[history.length-1] == data.url ){
+                        return false;
+                    }
+
                     var object = data.data || {},
                     title = data.title || '',
                     url = data.url || '';
@@ -292,7 +302,7 @@ var jUri = (function( window ){
         */
         
         isHTTP: function( callback ){
-            if( this.protocol.match(/^http$/) ){
+            if( this.protocol().match(/^http$/) ){
                 callback ? callback() : false;
                 return true;
             }else{
@@ -307,7 +317,7 @@ var jUri = (function( window ){
         */
         
         isHTTPS: function( callback ){
-            if( this.protocol.match(/^https$/) ){
+            if( this.protocol().match(/^https$/) ){
                 callback ? callback() : false;
                 return true;
             }else{
@@ -367,7 +377,7 @@ var jUri = (function( window ){
         */
         
         isFile: function( callback ){
-            if( this.pathname.match(/\.(html|htm|php|phtml|asp|shtml|cgi|jsp|pl)$/i) ){
+            if( this.pathname().match(/\.(html|htm|php|phtml|asp|shtml|cgi|jsp|pl)$/i) ){
                 callback ? callback() : false;
                 return true;
             }else{
@@ -465,6 +475,77 @@ var jUri = (function( window ){
 
         encode: function(str){
             return encodeURIComponent(str);
+        },
+
+        bindToUrl: function( selectors ){
+            var elements = jUri.fn.select( selectors ), el, html;
+
+            for( var e in elements ){
+                el = elements[e][0];
+
+                //Check if we haven't bound the element to the url changes
+                if( el && typeof el.bound == 'undefined' ){
+
+                    //console.log(el)
+
+                    //Save the first copy
+                    html = el.innerHTML;
+
+                    el.urlCopies = [{
+                        url: jUri.href(),
+                        html: html
+                    }];
+
+                    el.bound = true;
+
+                    el.selector = jUri.fn.getSelector( el );
+
+                    var elLength = jUri.fn.boundElements.length;
+
+                    jUri.fn.boundElements[length] = el;
+                }
+            }
+
+            //console.log(jUri.fn.boundElements)
+
+            if( elements.length ){
+                //Bind the urlchange event
+                jUri.urlchange(function(ev){
+                    for( var o in jUri.fn.boundElements ){
+                        var el = jUri.fn.boundElements[o],
+                        saved = false,
+                        copies = el.urlCopies, length,
+                        selector = el.selector,
+                        realElement = jUri.fn.select(selector)[0],
+                        html = realElement[0].innerHTML;
+
+                        //Check if there is a copy of this url
+                        for( var i in copies ){
+                            if( copies[i].url == ev.newUrl ){
+                                //alert(1);
+                                realElement[0].innerHTML = copies[i].html;
+                                saved = true;
+                                break;
+                            }
+                        }
+
+                        //Save a new copy
+                        if( !saved ){
+                            length = copies.length;
+                            el.urlCopies[length] = {
+                                url: ev.newUrl,
+                                html: html
+                            };
+                        }
+
+                        //console.log(el.urlCopies)
+                    }
+
+                    
+                });
+            }
+
+            return;
         },
 
 
@@ -607,7 +688,25 @@ var jUri = (function( window ){
                   }
                 };
               }
-            })()
+            })(),
+
+            select: function( selectors ){
+                if( document.querySelectorAll ){
+                    var elements = document.querySelectorAll( selectors );
+
+                    return [elements];
+                }
+            },
+
+            getSelector: function( element ){
+                if( element.id ){
+                    return '#'+element.id;
+                } else if( element.name ){
+                    return '*[name="'+element.name+'"]';
+                }
+            },
+
+            boundElements: []
         },
         
         fx: {
