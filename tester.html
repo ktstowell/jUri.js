@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<meta charset="UTF-8">
+	<meta charset="UTF-8"/>
 	<title>jUri  (v0.4)</title>
 	<script src="juri.orig.js"></script>
 
@@ -11,7 +11,6 @@
 			alert('The hash was changed!');
 		});
 
-		console.log('it works!')
 		jUri.urlchange(function(e){
 			alert('The url is now "'+e.newUrl+'"!');
 			if( e.newUrl.match(/hello_world/) ){
@@ -45,11 +44,11 @@
 	<hgroup>
 		<h1>jUri - test document</h1>
 	</hgroup>
-
 	<p>Test passed on: Firefox 10+, Opera 11.61, Chrome 17+, iOS Safari 4.1</p>
 
 	<p>Click on any list element to see its effect</p>
 	<p name="load2"></p>
+
 	<ul>
 
 		<li data-hash="changed">data-hash test</li>

@@ -818,9 +818,13 @@ var jUri = (function( window ){
 
             select: function( selectors ){
                 if( document.querySelectorAll ){
-                    var elements = document.querySelectorAll( selectors );
+                    try {
+                        var elements = document.querySelectorAll( selectors );
 
-                    return elements;
+                        return elements;
+                    } catch(e) {
+                        return [];
+                    }
                 }/*else{
 
                     var separated = selectors.split(','),selector;
@@ -847,39 +851,82 @@ var jUri = (function( window ){
                 }*/
             },
 
+            css3Selectors: (function(document){
+                try{
+                    document.querySelectorAll('html:nth-child(1)');
+                    return true
+                }catch(e){
+                    return false;
+                }
+            })(window.document),
+
             getSelector: function( element ){
-                var tagname = element.localName,
+                var tagname = element.localName || element.tagName.toLowerCase(),
                 id = element.getAttribute('id'),
-                nameAttr = element.getAttribute('name');
+                elementParent = element.parentNode,
 
-                if( typeof id == 'string' ){
-                    if( jUri.fn.select( '#'+id ).length == 1 ){
-                        return '#'+id;
-                    }else{
+                checkChildhood = function( element, selector ){
+                    var others,last, 
+                    tagname = element.localName|| element.tagName.toLowerCase(),
+                    e=0, sufix,
+                    others = jUri.fn.select(selector),
+                    last = others.length-1;
 
-                        var elmnts = jUri.fn.select( id ),
-                        l = elmnts.length, n=0;
-
-                        //Try comparing the tags
-                        for( var i=0;i<l;i++ ){
-                            if( elmnts[i].localName == tagname ){
-                                n++;
-                            }
-                        }
-
-                        if( n==1 ){
-                            return tagname+'#'+id;
-                        }
-
+                    if( others.length == 1 ){
+                        return selector;
                     }
-                    
-                } else if( typeof nameAttr == 'string' ){
-                    if( jUri.fn.select( tagname+'[name="'+nameAttr+'"]' ).length == 1 ){
-                        return tagname+'[name="'+nameAttr+'"]';
+
+                    for( var i=0,l=others.length;i<l;i++ ){
+                        if( (element == others[i] && '\v'!='v') || //Modern browsers
+                            ('\v'=='v' && element.innerHTML == others[i].innerHTML) ){//IE
+
+                            if( i == 0 ){
+                                selector += ':first-of-type';
+                            } else if( i == last ){
+                                selector += ':last-of-type';
+                            } else if( jUri.fn.css3Selectors === true ){//Modern browsers
+                                selector += ':nth-of-type('+(i+1)+')';
+                            } else {//IE 7,8
+                                var add = '';
+                                while( e < i ){
+                                    add += ' + '+tagname;
+                                    e++
+                                }
+                                selector += add;
+                            }
+                            //No support for IE 6
+                            break;
+                        }
+                    }
+
+                    if( jUri.fn.select( selector ).length == 1 || '\v'=='v'){ 
+                        return selector;
+                    }
+                },//end of checkChildhood()
+
+                //Set the init selector, checking the childhood of the parent
+                selector = tagname;
+
+                //Check the tag
+                if( jUri.fn.select( selector ).length == 1 ){
+                    return selector;
+                }
+
+                var others,last;
+
+                //Check the id
+                if( typeof id == 'string' && id != '' ){
+                    var others = jUri.fn.select( id ),
+                    last = others.length-1;
+
+                    selector += '#'+id;
+
+                    if( jUri.fn.select( selector ).length == 1 ){
+                        return selector;
                     }
                 }
 
-                return false;
+                return checkChildhood(element,selector);
             },
 
             boundElements: []
