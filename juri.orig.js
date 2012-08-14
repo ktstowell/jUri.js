@@ -185,10 +185,8 @@ var jUri = (function( window ){
                     url = data.url || '';
                 }
 
-                //Some browsers don't allow to check the history,
-                //such as Firefox 14+
                 try {
-                    if( history[history.length-1] == url ){
+                    if( history.current == url ){
                         return false;
                     }
                 }catch(e){}
@@ -218,6 +216,14 @@ var jUri = (function( window ){
         back: function( int, fallback ){
             try {
                 window.history.back(int);
+            }catch(e){
+                if( fallback ) fallback();
+            }
+        },
+
+        forward: function( int, fallback ){
+            try {
+                window.history.forward(int);
             }catch(e){
                 if( fallback ) fallback();
             }
@@ -316,7 +322,7 @@ var jUri = (function( window ){
         
         urlchange: function( callback, fireOnHashChange, fireOnJUriSet ){
             if( !document.body ){
-                return setTimeout('jUri.urlchange(' + callback +', ' + fireOnHashChange + ', ' + fireOnJUriSet + ')', 1);
+                return setTimeout('jUri.urlchange(' + callback +',' + fireOnHashChange + ',' + fireOnJUriSet + ')', 1);
             }
             
             this.fn.checkurl( this.href(), callback, fireOnHashChange, fireOnJUriSet );
@@ -432,7 +438,7 @@ var jUri = (function( window ){
         
         animateAnchorLinks: function( anchors, changeHash ){
             if( !document.body || !jUri.anchorsCreated ){
-                return setTimeout('jUri.animateAnchorLinks("' + anchors + '", ' + changeHash + ')',1);
+                return setTimeout('jUri.animateAnchorLinks("' + anchors + '",' + changeHash + ')',1);
             }
 
             if( typeof anchors == 'boolean' ){
@@ -741,7 +747,7 @@ var jUri = (function( window ){
                         scroll = document.documentElement.scrollTop;
                     }
                 }
-                setTimeout('jUri.fn.checkhash("' + jUri.hash() + '", ' + prevScroll + ', ' + callback + ')', 1);
+                setTimeout('jUri.fn.checkhash("' + jUri.hash() + '",' + prevScroll + ',' + callback + ')', 1);
             },
 
             jUriSet: false,
@@ -756,8 +762,7 @@ var jUri = (function( window ){
                     if( !fireOnJUriSet ){
                         if( jUri.fn.jUriSet ){
                             jUri.fn.jUriSet = false;
-                            return setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
-                                , ' + fireOnHashChange +', ' + fireOnJUriSet + ')', 1);
+                            return setTimeout('jUri.fn.checkurl("' + jUri.href() + '",' + callback + ',' + fireOnHashChange +',' + fireOnJUriSet + ')', 1);
                         }
                     }else{
                         jUri.fn.jUriSet = false;
@@ -765,15 +770,13 @@ var jUri = (function( window ){
 
                     if( !fireOnHashChange ){
                         if( jUri.href().split('#')[0] == str.split('#')[0] ){
-                            return setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
-                                , ' + fireOnHashChange +', ' + fireOnJUriSet + ')', 1);
+                            return setTimeout('jUri.fn.checkurl("' + jUri.href() + '",' + callback + ',' + fireOnHashChange +',' + fireOnJUriSet + ')', 1);
                         }
                     }
 
                     callback( new urlChangeEvent( str, jUri.href() ) );
                 }
-                setTimeout('jUri.fn.checkurl("' + jUri.href() + '", ' + callback + '\
-                                , ' + fireOnHashChange +', ' + fireOnJUriSet + ')', 1);
+                setTimeout('jUri.fn.checkurl("' + jUri.href() + '",' + callback + ',' + fireOnHashChange +',' + fireOnJUriSet + ')', 1);
             },
             
             
