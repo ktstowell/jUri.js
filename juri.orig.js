@@ -1,11 +1,13 @@
-/* jUri v0.4.2
-Mini-javascript library for handling url functions
-jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
-You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
-Email me:
-efz1005[at]gmail[dot]com */
+/*  jUri v0.4.2
+    Mini-javascript library for handling url functions
+    jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
+    You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
 
-/**********************/
+    Download the last version at:
+    http://github.com/3nr1c/jUri.js/downloads
+
+    Email me:
+    efz1005[at]gmail[dot]com */
 
 var jUri = (function( window ){
     if (!window.console) {
