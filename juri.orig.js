@@ -623,12 +623,6 @@ var jUri = (function( window ){
                 }else{
                     callback = new Function();
                 }
-
-                if( data.response ){
-                    response = data.response;
-                }else{
-                    response = 'html';
-                }
             } else if( typeof data == 'string' ){
                 url = data;
                 method = 'GET';
@@ -649,7 +643,7 @@ var jUri = (function( window ){
                     xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
                 }
             }
-
+            
             xmlhttp.onreadystatechange = function(){
                 if ( xmlhttp.readyState == 4 && xmlhttp.status == 200 ){
                     
@@ -672,12 +666,25 @@ var jUri = (function( window ){
                         /*
                         Only force a HashChange event when the 
                         element.innerHTML is longer than 1024 chars
-                        (v0.4.1)*/
+                        (v0.4.1)
 
-                        var forceEvent = false;
+                        If found an <script> tag in the innerHTML,
+                        save am AJAXurl
+                        (v0.4.3)
+                        */
+
+                        var forceEvent = foundScript = false;
 
                         for( var i=0;i<tl;i++ ){
-                            if( targets[i].innerHTML.length > 1024 ){
+
+                            //If an script tag is found, save the AJAXurl
+                            //to execute it when getting back to the current url
+                            foundScript = (function(html){
+                                return /<script[^>]*>(.|\n|\t)*?<\/script>/gim
+                                    .test(html);
+                            })( targets[i].innerHTML );
+
+                            if( targets[i].innerHTML.length > 1024 && !foundScript ){
                                 forceEvent = true;
                                 break;
                             }
@@ -725,6 +732,13 @@ var jUri = (function( window ){
                     /*
                     Parsing JSON and plaintext/html
                     */
+
+                    if( data.response ){
+                        response = data.response.toLowerCase();
+                    }else{
+                        response = 'html';
+                    }
+
                     if( response == 'json' ){
                         try {
                             responseText = eval('('+xmlhttp.responseText+')');

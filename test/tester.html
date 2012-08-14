@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8"/>
 	<title>jUri  (v0.4)</title>
-	<script src="juri.orig.js"></script>
+	<script src="../juri.orig.js"></script>
 
 	<script>
 		jUri.hashchange(function(e){
@@ -22,13 +22,24 @@
 
 		jUri.title('jUri - test document (v0.4)');
 
-		function loadReadme(){
+		function loadTest1(){
 			jUri.ajax({
 				url:'ajax_test.txt',
-				setUrl:'/js/jUri.js/ajax_test.txt',
+				setUrl:'/jUri.js/test/ajax_test.txt',
 				target:'#load, p[name="load2"]',
 				bindToUrl:true
 			});
+		}
+
+		function loadJSONTest(){
+			jUri.ajax({
+				url:'json_test.json',
+				response:'json',
+				callback:function(data){
+					jUri.log(data)
+					document.getElementById('load').innerHTML = data.message;
+				}
+			})
 		}
 	</script>
 
@@ -44,7 +55,7 @@
 	<hgroup>
 		<h1>jUri - test document</h1>
 	</hgroup>
-	<p>Test passed on: Firefox 10+, Opera 11.61, Chrome 17+, iOS Safari 4.1</p>
+	<p>Test passed on: Firefox 9+, Opera 11.61, Chrome 17+, iOS Safari 4.1</p>
 
 	<p>Click on any list element to see its effect</p>
 	<p name="load2"></p>
@@ -64,7 +75,8 @@
 		<li onclick="jUri.title(['Hello','World'])">Start title changing</li>
 		<li onclick="jUri.title().stop('Stopped!')">Stop title changing</li>
 		<li onclick="jUri.set('hello_world',true)">Fire .urlchange event</li>
-		<li onclick="loadReadme()">Load ajax_test.txt using jUri.ajax()</li>
+		<li onclick="loadTest1()">Load ajax_test.txt using jUri.ajax()</li>
+		<li onclick="loadJSONTest()">Load json_test.json using jUri.ajax() and a callback</li>
 
 	</ul>
 
