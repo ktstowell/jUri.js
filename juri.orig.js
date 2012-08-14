@@ -1,4 +1,4 @@
-/* jUri v0.4
+/* jUri v0.4.2
 Mini-javascript library for handling url functions
 jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
 You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
@@ -507,7 +507,7 @@ var jUri = (function( window ){
             for( var e=0,l=elements.length;e<l;e++ ){
                 el = elements[e];
                 //Check if we haven't bound the element to the url changes
-                if( el && typeof el.bound == 'undefined' ){
+                if( el && !el.bound ){
                     //Save the first copy
                     html = el.innerHTML;
 
@@ -515,6 +515,7 @@ var jUri = (function( window ){
                         url: jUri.href(),
                         html: html
                     }];
+                    
 
                     el.bound = true;
 
@@ -540,7 +541,14 @@ var jUri = (function( window ){
                         //Check if there is a copy of this url
                         for( var i=0,l=copies.length;i<l;i++ ){
                             if( copies[i].url == ev.newUrl ){
-                                realElement.innerHTML = copies[i].html;
+                                if( typeof copies[i].html == 'string' ){
+                                    realElement.innerHTML = copies[i].html;
+                                }else if( typeof copies[i].AJAXurl == 'string' ){
+                                    jUri.ajax({
+                                        url: copies[i].AJAXurl,
+                                        target: selector
+                                    });
+                                }
                                 break;
                             }
                         }
@@ -633,23 +641,70 @@ var jUri = (function( window ){
                     
                     if( data.target ){
                         var targets = jUri.fn.select(data.target),
-                        response = xmlhttp.responseText;
+                        response = xmlhttp.responseText,
+                        //Targets length
+                        tl = targets.length;
 
                         if( data.bindToUrl ){
                             jUri.bindToUrl( data.target );
                         }
 
-                        for( var i=0,l=targets.length;i<l;i++ ){
+                        for( var i=0;i<tl;i++ ){
                             targets[i].innerHTML = response;
-                        }   
+                        }
                     }
 
                     if( data.setUrl ){
-                        if( data.bindToUrl && data.target ){
+                        /*
+                        Only force a HashChange event when the 
+                        element.innerHTML is longer than 1024 chars
+                        (v0.4.1)*/
+
+                        var forceEvent = false;
+
+                        for( var i=0;i<tl;i++ ){
+                            if( targets[i].innerHTML.length > 1024 ){
+                                forceEvent = true;
+                                break;
+                            }
+                        }
+                        if( data.bindToUrl && data.target && forceEvent ){
                             //Force the HashChange event
                             jUri.set( data.setUrl, true);
                         }else{
                             jUri.set( data.setUrl );
+                        }
+                    }
+
+                    //If the innerHTML exceeds 1024 chars, save the AJAXurl instead
+                    if( data.target && forceEvent ){
+
+                        var boundElementsLength = jUri.fn.boundElements.length;
+
+                        for( var i=0;i<tl;i++ ){
+                            var el = jUri.fn.boundElements[boundElementsLength-(tl-i)],
+                            has_copy = false, copies;
+
+                            if( !el.urlCopies ) el.urlCopies = [];
+
+                            copies = el.urlCopies;
+
+                            //Check if there is a copy of this url
+                            for( var e=0,l=el.urlCopies.length;e<l;e++ ){
+                                if( copies[e].AJAXurl && copies[e].AJAXurl == url ){
+                                    has_copy = true;
+                                    break;
+                                }
+                            }
+
+                            if( has_copy == true ) continue;
+
+                            el.urlCopies.push({
+                                url: jUri.href(),
+                                AJAXurl: url
+                            });
+
+                            jUri.fn.boundElements[boundElementsLength-(tl-i)] = el;
                         }
                     }
 
