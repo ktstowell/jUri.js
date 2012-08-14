@@ -623,6 +623,12 @@ var jUri = (function( window ){
                 }else{
                     callback = new Function();
                 }
+
+                if( data.response ){
+                    response = data.response;
+                }else{
+                    response = 'html';
+                }
             } else if( typeof data == 'string' ){
                 url = data;
                 method = 'GET';
@@ -716,7 +722,20 @@ var jUri = (function( window ){
                         }
                     }
 
-                    callback(xmlhttp);
+                    /*
+                    Parsing JSON and plaintext/html
+                    */
+                    if( response == 'json' ){
+                        try {
+                            responseText = eval('('+xmlhttp.responseText+')');
+                        }catch(e){
+                            responseText = {};
+                        }                        
+                    }else{
+                        responseText = xmlhttp.responseText;
+                    }
+
+                    callback(responseText);
                 }
             };
 
