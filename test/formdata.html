@@ -1,0 +1,32 @@
+<!doctype html>
+
+<html>
+<head>
+	<title>jUri.js - FormData test</title>
+
+	<script src="../juri.orig.js"></script>
+	<script>
+	function sendFormData(){
+		jUri.ajax({
+			url:'formdata.php',
+			form:'#form1',
+			callback: function(data){
+				alert( data );
+			}
+		});
+	}
+	</script>
+</head>
+
+<body>
+
+	<p>Worked well in IE8+, Chrome 21+, Firefox 14+, Safari 5+</p>
+
+	<a href="javascript:sendFormData();">Test!</a>
+
+	<form id="form1">
+		<input type="text" name="name" placeholder="Enter your name here">
+	</form>
+
+</body>
+</html>

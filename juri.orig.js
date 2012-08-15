@@ -1,4 +1,4 @@
-/*  jUri v0.4.2
+/*  jUri v0.4.3
     Mini-javascript library for handling url functions
     jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
     You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
@@ -623,6 +623,15 @@ var jUri = (function( window ){
                 }else{
                     callback = new Function();
                 }
+
+                if( data.form && typeof data.form == 'string' ){
+                    form = jUri.fn.select(data.form)[0];
+                } else if( data.form && typeof data.form == 'object'){
+                    form = data.form;
+                }else{
+                    form = false;
+                }
+
             } else if( typeof data == 'string' ){
                 url = data;
                 method = 'GET';
@@ -630,7 +639,6 @@ var jUri = (function( window ){
             }else{
                 return false;
             }
-
 
             //Create the xmlhttpRequest object
             var xmlhttp;
@@ -643,7 +651,15 @@ var jUri = (function( window ){
                     xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
                 }
             }
-            
+
+            if( form ){
+                xmlhttp.open('POST',url,async);
+            }else{
+                xmlhttp.open(method,url,async);
+            }
+
+            if( typeof data == 'string' ) return xmlhttp;
+
             xmlhttp.onreadystatechange = function(){
                 if ( xmlhttp.readyState == 4 && xmlhttp.status == 200 ){
                     
@@ -753,8 +769,52 @@ var jUri = (function( window ){
                 }
             };
 
-            xmlhttp.open(method,url,async);
-            xmlhttp.send(null);
+            if( form ){
+
+                var formdata, 
+                uA = jUri.userAgent.toLowerCase(),
+                isChrome = /\bchrome\b/i.test(uA),
+                isSafari = !isChrome && /safari/.test(uA);
+
+                //Native implementation using FormData() object
+                //Not working in Safari 5... better use the non-native implementation
+                if( window.FormData && !isSafari){
+                    formdata = new FormData(form);
+                }
+                //Non-native implementation parsing the form children
+                //We must pass as data an encoded string
+                else{
+                    //Set the content-type headers
+                    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                    var children, i, l, child,
+                    formdata = '';
+
+                    children = form.childNodes;
+
+                    for( i=0,l=children.length;i<l;i++ ){
+                        //To prevent no-html nodes
+                        if( typeof children[i] != 'object' ||
+                        (children[i].tagName == null && children[i].localName == null) ){
+                            continue;
+                        }
+
+                        child = children[i];
+                        if( child.getAttribute('name') ){
+                            var name = child.getAttribute('name'),
+                            value = child.value;
+
+                            if( formdata != '' ) formdata += '&'
+
+                            formdata += name+'='+jUri.encode(value);
+                        }
+                    }
+                }
+                
+                xmlhttp.send(formdata);
+            }else{
+                xmlhttp.send(null);
+            }
 
             return xmlhttp;
         },
