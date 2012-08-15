@@ -978,30 +978,77 @@ var jUri = (function( window ){
                     } catch(e) {
                         return [];
                     }
-                }/*else{
+                }else{
 
-                    var separated = selectors.split(','),selector;
+                    var separated = selectors.split(','),selector,
+                    elements = [];
 
                     for( var i=0,l=separated.length;i<l;i++ ){
                         //Trim the selector
-                        selector = separated[i].replace(/^\s* /,'').replace(/\s*$/,'');
+                        selector = separated[i].replace(/^\s*/,'').replace(/\s*$/,'');
 
                         //No childs
-                        if( !selector.match(/^[^\s]\s+[^\s]$/) && !selector.match(/^[^\s]\s*>\s*[^\s]$/) ){
+                        if( !/^[^\s]\s+[^\s]$/.test( selector ) 
+                         && !/^[^\s]\s*>\s*[^\s]$/.test( selector ) ){
 
-                            var 
-                                class = selector.split('.')[1],
-                                id = selector.split('.').split('#')[1],
-                                tag = selector.split('#')[0];
+                            var attrCondition = (selector.split('[')[1] || '').split(']')[0] || '',
+                            pseudoClass = selector.split(':')[1] || '',
+                            css2selector = (selector.split('[')[0] || '*').split(':')[0] || '*';
 
-                            if( tag ){
+                            //Only tag and all elements
+                            if( /^[a-zA-Z]*$/.test( css2selector ) || /^\*$/.test( css2selector ) ){
+                                var bytag = document.getElementsByTagName( css2selector ),
+                                pushToElements = false;
 
+                                for( var e=0,tl=bytag.length;e<tl;e++ ){
+                                    var el = bytag[e];
+
+                                    if( /^[^="']+$/.test( attrCondition ) ){
+                                        if( el.getAttribute( attrCondition ) ){
+                                            pushToElements = true;
+                                        }
+                                    } else if( /^[^="']+=['"][^="']*['"]$/.test( attrCondition ) ){
+                                        if( el.getAttribute( attrCondition.split('=')[0] ) == 
+                                           attrCondition.split('=')[1]){
+                                            pushToElements = true;
+                                        }
+                                    }
+
+                                     else {
+                                        pushToElements = true;
+                                    }
+
+                                    if( pushToElements ) elements.push( bytag[e] );
+                                }
+                                continue;
+                            }
+
+                            //Id with/without tagname
+                            if( /^[a-zA-Z]*#[a-zA-Z0-9_-]+$/.test( css2selector ) ){
+                                var parts = css2selector.split('#'),
+                                tagname = parts[0],
+                                id = tagname[1],
+                                elById = document.getElementsById( id ),
+                                tagname, el;
+
+                                for( var e=0,length=elById.length;e<length;e++ ){
+                                    el = elById[e];
+                                    elTag = el.localName || el.tagName.toLowerCase();
+
+                                    if( tagname != '' ){
+                                        if( elTag == tagname ){
+                                            elements.push( el );
+                                        }
+                                    } else {
+                                        elements.push( el );
+                                    }
+                                }
                             }
 
                         }
                     }
 
-                }*/
+                }
             },
 
             css3Selectors: (function(document){
