@@ -1171,6 +1171,8 @@ var jUri = (function( window ){
 hashChangeEvent = function( prevHash, newHash ){
     this.oldHash = prevHash || "#";
     this.newHash = newHash || "#";
+    this.oldUrl = history.previous || "";
+    this.newUrl = jUri.href() || "";
     this.newLoc = window.location;
 };
 
