@@ -1,7 +1,6 @@
-jUri.js v0.4
-=========
+# jUri.js v0.4
 
-Mini-javascript library for handling url functions
+JavaScript library for URL handling and events, AJAX, browser's history and more
 
 jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
 You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
@@ -9,8 +8,7 @@ You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
 Email me:
 efz1005[at]gmail[dot]com
 
-Still in alpha version!
------------
+## Still in alpha version!
 Please be patient.
 
 
