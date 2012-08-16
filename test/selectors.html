@@ -1,0 +1,104 @@
+<!doctype html>
+
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>jUri.js - Selectors test</title>
+
+	<script src="../juri.orig.js"></script>
+
+	<script>
+	window.jUriReady(function(){
+		console.log('p')
+		console.log(
+			jUri.select('p')
+		);
+		
+		console.log('p#my_p')
+		console.log(
+			jUri.select('p#my_p')
+		);
+		
+		console.log('p[style]')
+		console.log(
+			jUri.select('p[style]')
+		);
+		
+		console.log('#my_p,[target]')
+		console.log(
+			jUri.select('#my_p,[target]')
+		);
+		
+		console.log('[style],[target="_self"]')
+		console.log(
+			jUri.select('[style],[target="_self"]')
+		);
+		
+		console.log('p[title~="4th"]')
+		console.log(
+			jUri.select('p[title~="4th"]')
+		);
+		
+		console.log('div[title^="E"]')
+		console.log(
+			jUri.select('div[title^="E"]')
+		);
+		
+		console.log('div[title$="2"]')
+		console.log(
+			jUri.select('div[title$="2"]')
+		);
+		
+		console.log('.foo[title*="div"]')
+		console.log(
+			jUri.select('.foo[title*="div"]')
+		);
+		
+		console.log('[lang|="en"]')
+		console.log(
+			jUri.select('[lang|="en"]')
+		);
+		
+		console.log('p:first-child')
+		console.log(
+			jUri.select('p:first-child')
+		);
+		
+		console.log('p:last-child')
+		console.log(
+			jUri.select('p:last-child')
+		);
+		
+		console.log('p:nth-child(3)')
+		console.log(
+			jUri.select('p:nth-child(3)')
+		);
+		
+		console.log('p:nth-last-child(4)')
+		console.log(
+			jUri.select('p:nth-last-child(4)')
+		);
+	});
+	</script>
+</head>
+
+<body>
+
+	<p>Testing jUri.select() ... use the console to check if it works!</p>
+
+	<p id="my_p">Second paragraph</p>
+
+	<p style>Third paragraph with an 'style' attribute</p>
+
+	<a href="javascript:;" target="_self">Link with target="_self"</a>
+
+	<p title="My 4th paragraph">Paragraph with a title attribute</p>
+
+	<div class="foo" title="Example div">First div, matching it with 'div[title^="E"]'</div>
+
+	<div title="Example div2">Second div, matching it with 'div[title$="2"]'</div>
+
+	<p lang="en-US">Paragraph with lang="en-US"</p>
+
+</body>
+</html>

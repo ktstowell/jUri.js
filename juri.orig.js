@@ -510,7 +510,7 @@ var jUri = (function( window ){
         },
 
         bindToUrl: function( selectors ){
-            var elements = jUri.fn.select( selectors ), el, html;
+            var elements = jUri.select( selectors ), el, html;
 
             for( var e=0,l=elements.length;e<l;e++ ){
                 el = elements[e];
@@ -544,7 +544,7 @@ var jUri = (function( window ){
                         var el = jUri.fn.boundElements[o],
                         copies = el.urlCopies,
                         selector = el.selector,
-                        realElement = jUri.fn.select(selector)[0];
+                        realElement = jUri.select(selector)[0];
 
                         //Check if there is a copy of this url
                         for( var i=0,l=copies.length;i<l;i++ ){
@@ -570,7 +570,7 @@ var jUri = (function( window ){
                         saved = false,
                         copies = el.urlCopies, length,
                         selector = el.selector,
-                        realElement = jUri.fn.select(selector)[0],
+                        realElement = jUri.select(selector)[0],
                         html = realElement.innerHTML;
 
                         //Check if there is a copy of this url
@@ -625,7 +625,7 @@ var jUri = (function( window ){
                 }
 
                 if( data.form && typeof data.form == 'string' ){
-                    form = jUri.fn.select(data.form)[0];
+                    form = jUri.select(data.form)[0];
                 } else if( data.form && typeof data.form == 'object'){
                     form = data.form;
                 }else{
@@ -664,7 +664,7 @@ var jUri = (function( window ){
                 if ( xmlhttp.readyState == 4 && xmlhttp.status == 200 ){
                     
                     if( data.target ){
-                        var targets = jUri.fn.select(data.target),
+                        var targets = jUri.select(data.target),
                         response = xmlhttp.responseText,
                         //Targets length
                         tl = targets.length;
@@ -800,7 +800,8 @@ var jUri = (function( window ){
                         }
 
                         child = children[i];
-                        if( child.getAttribute('name') ){
+                        //Avoid input type="file" selecting
+                        if( child.getAttribute('name') && child.getAttribute('type') != 'file' ){
                             var name = child.getAttribute('name'),
                             value = child.value;
 
@@ -818,6 +819,330 @@ var jUri = (function( window ){
 
             return xmlhttp;
         },
+
+        select: function( selectors ){
+                //if( !document.querySelectorAll ){
+                try {
+                    var elements = document.querySelectorAll( selectors );
+
+                    return elements;
+                } catch(e) {
+                      //  return [];
+                    //}
+                //}else{
+                    var separated = selectors.split(','),selector,
+                    elements = [],
+
+                    //Prevent text nodes
+                    deleteTextNodes = function( nodeList ){
+                        var elements = [];
+
+                        for( var e=0,l=nodeList.length;e<l;e++ ){
+                            if( typeof nodeList[e] != 'object' ||
+                            (nodeList[e].tagName == null && nodeList[e].localName == null) ){
+                                continue;
+                            }
+                            elements.push( nodeList[e] );
+                        }
+                        return elements
+                    }
+
+                    nth_child = function( element ){
+                        var parent = element.parentNode,
+                        children = deleteTextNodes( parent.childNodes );
+
+                        for( var e=0,l=children.length;e<l;e++ ){
+                            if( element == children[e] ){
+                                return e+1 == l ? -1 : e+1;
+                            }
+                        }
+                    },
+
+                    nth_last_child = function( element ){
+                        var parent = element.parentNode,
+                        children = deleteTextNodes( parent.childNodes ).reverse();
+
+                        for( var e=0,l=children.length;e<l;e++ ){
+                            if( element == children[e] ){
+                                return e+1;
+                            }
+                        }/*
+                        for( var l=children.length-1;l>=0;l-- ){
+                            if( element == children[l] ){
+                                return l+1;
+                            }
+                        }*/
+                    };
+
+                    for( var i=0,l=separated.length;i<l;i++ ){
+                        if( typeof separated[i] == 'undefined' ) continue;
+                        //Trim the selector
+                        selector = separated[i].replace(/^\s*/,'').replace(/\s*$/,'');
+
+                        //No childs
+                        if( !/^[^\s]+\s+[^\s]+$/.test( selector ) 
+                         && !/^[^\s]+\s*>\s*[^\s]+$/.test( selector ) ){
+
+                            var attrConditionals = /\[.*?\]/gim.exec(selector) || [],
+                            pseudoClass = selector.split(':')[1] || '',
+                            css2selector = selector.split('[')[0].split(':')[0] || '*',
+                            id = undefined;
+
+                            //Only tag and all elements
+                            if( /^[a-zA-Z]*(\.[a-zA-Z0-9_-]+)*$/.test( css2selector ) 
+                             || /^\*$/.test( css2selector ) ){
+                                var classes = css2selector.split('.').slice(1),
+                                tag = css2selector.split('.')[0],
+                                els = document.getElementsByTagName( tag ),
+                                tl = els.length;
+
+                                if( tag == '' ){
+                                    els = document.getElementsByTagName( '*' );
+                                    tl = els.length;
+                                    tag = '*';
+                                }
+
+                                if( classes != null ){
+                                    for( var c=0,cLen=classes.length;c<cLen;c++ ){
+                                        attrConditionals.push( '[class~="'+classes[c]+'"]' );
+                                    }
+                                }
+                            }
+
+                            //Id with/without tagname (+classes)
+                            else if( /^[a-zA-Z]*#[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*$/.test( css2selector ) ){
+                                var parts = css2selector.split('#'),
+                                tagname = parts[0] || '',
+                                id = parts[1].split('.')[0],
+                                classes = parts[1].split('.').slice(1),
+                                els = document.getElementById( id ),
+                                tl = 1,
+                                elTag = els.localName || els.tagName;
+
+                                if( classes != null ){
+                                    for( var c=0,cLen=classes.length;c<cLen;c++ ){
+                                        attrConditionals.push( '[class~="'+classes[c]+'"]' );
+                                    }
+                                }
+
+                                if( els == null ) continue;
+
+                                if( tagname != '' && elTag != tagname){
+                                    continue;
+                                }
+                            }
+
+                            for( var e=0;e<tl;e++ ){
+                                var pushToElements, el, tag;
+
+                                if( typeof id != 'undefined' ){
+                                    el = els;
+                                }else{
+                                    el = els[e];
+                                }
+
+                                tag = el.tagName || el.localName;
+
+                                /*
+                                    PARSE THE ATTRIBUTE CONDITIONALS
+                                */
+                                if( attrConditionals == null ){
+                                    pushToElements = true;
+                                }else{
+                                    for( var a=0,atLen=attrConditionals.length;a<atLen;a++ ){
+                                        var attrCondition = attrConditionals[a].replace(/^\[/,'').replace(/\]$/,'');
+
+                                        // E[foo]                                
+                                        if( /^[a-zA-Z]+$/.test( attrCondition ) ){
+                                            if( el.getAttribute( attrCondition ) != null ){
+                                                pushToElements = true;
+                                            }else{
+                                                pushToElements = false;
+                                            }
+                                        }
+
+                                        // E[foo="bar"]
+                                        else if( /^[a-zA-Z]+=('[^']*'|"[^"]*")$/.test( attrCondition ) ){
+                                            var attr = attrCondition.split('=')[0],
+                                            value = attrCondition.split('=')[1].replace(/^['"]/,'').replace(/['"]$/,'');
+
+                                            if( el.getAttribute( attr ) == value ){
+                                                pushToElements = true;
+                                            }else{
+                                                pushToElements = false;
+                                            }
+                                        }
+
+                                        // E[foo~="bar"]
+                                        else if( /^[a-zA-Z]+~=('[^']*'|"[^"]*")$/.test( attrCondition ) ){
+                                            if( el.getAttribute( attrCondition.split('~=')[0] ) != null ){
+                                                var value = el.getAttribute( attrCondition.split('~=')[0] ),
+                                                match = attrCondition.split('~=')[1].replace(/^['"]/,'').replace(/['"]$/,''),
+                                                regexp = new RegExp( '(^|\\s)'+match+'(\\s|$)');
+                                                
+                                                if( match != '' && regexp.test( value ) ){
+                                                    pushToElements = true;
+                                                }else{
+                                                    pushToElements = false;
+                                                }
+                                            }else{
+                                                pushToElements = false;
+                                            }
+                                        }
+
+                                        // E[foo^="bar"]
+                                        else if( /^[a-zA-Z]+\^=('[^']*'|"[^"]*")$/.test( attrCondition ) ){
+                                            if( el.getAttribute( attrCondition.split('^=')[0] ) != null ){
+                                                var value = el.getAttribute( attrCondition.split('^=')[0] ),
+                                                match = attrCondition.split('^=')[1].replace(/^['"]/,'').replace(/['"]$/,''),
+                                                regexp = new RegExp( '^'+match );
+                                                
+                                                if( match != '' && regexp.test( value ) ){
+                                                    pushToElements = true;
+                                                }else{
+                                                    pushToElements = false;
+                                                }
+                                            }else{
+                                                pushToElements = false;
+                                            }
+                                        }
+
+                                        // E[foo$="bar"]
+                                        else if( /^[a-zA-Z]+\$=('[^']*'|"[^"]*")$/.test( attrCondition ) ){
+                                            if( el.getAttribute( attrCondition.split('$=')[0] ) != null ){
+                                                var value = el.getAttribute( attrCondition.split('$=')[0] ),
+                                                match = attrCondition.split('$=')[1].replace(/^['"]/,'').replace(/['"]$/,''),
+                                                regexp = new RegExp( match+'$' );
+                                                
+                                                if( match != '' && regexp.test( value ) ){
+                                                    pushToElements = true;
+                                                }else{
+                                                    pushToElements = false;
+                                                }
+                                            }else{
+                                                pushToElements = false;
+                                            }
+                                        }
+
+                                        // E[foo*="bar"]
+                                        else if( /^[a-zA-Z]+\*=('[^']*'|"[^"]*")$/.test( attrCondition ) ){
+                                            if( el.getAttribute( attrCondition.split('*=')[0] ) != null ){
+                                                var value = el.getAttribute( attrCondition.split('*=')[0] ),
+                                                match = attrCondition.split('*=')[1].replace(/^['"]/,'').replace(/['"]$/,''),
+                                                regexp = new RegExp( match );
+                                                
+                                                if( match != '' && regexp.test( value ) ){
+                                                    pushToElements = true;
+                                                }else{
+                                                    pushToElements = false;
+                                                }
+                                            }else{
+                                                pushToElements = false;
+                                            }
+                                        }
+
+                                        // E[foo|="bar"]
+                                        else if( /^[a-zA-Z]+\|=('[^']*'|"[^"]*")$/.test( attrCondition ) ){
+                                            if( el.getAttribute( attrCondition.split('|=')[0] ) != null ){
+                                                var value = el.getAttribute( attrCondition.split('|=')[0] ),
+                                                match = attrCondition.split('|=')[1].replace(/^['"]/,'').replace(/['"]$/,''),
+                                                regexp = new RegExp( '^'+match+'-' );
+                                                
+                                                if( match != '' && regexp.test( value ) ){
+                                                    pushToElements = true;
+                                                }else{
+                                                    pushToElements = false;
+                                                }
+                                            }else{
+                                                pushToElements = false;
+                                            }
+                                        }
+                                    }//ENDFOR
+                                }////END PARSE ATTRIBUTE CONDITIONALS
+
+                                /* Parse the pseudo-classes */
+                                // E:root
+                                if( pseudoClass == 'root' ){
+                                    if( tag == 'html' ){
+                                        pushToElements = true;
+                                    }else{
+                                        pushToElements = false
+                                    }
+                                }
+
+                                // E:first-child
+                                else if( pseudoClass == 'first-child' ){
+                                    if( nth_child( el ) == 1 ){
+                                        pushToElements = true;
+                                    }else{
+                                        pushToElements = false
+                                    }
+                                }
+
+                                // E:last-child
+                                else if( pseudoClass == 'last-child'){
+                                    if( nth_child( el ) == -1 ){
+                                        pushToElements = true;
+                                    }else{
+                                        pushToElements = false
+                                    }
+                                }
+
+                                // E:nth-child(n)
+                                else if( /^nth-child\(\d+\)$/.test( pseudoClass ) ){
+                                    if( nth_child( el ) == /\d+/.exec( pseudoClass ) ){
+                                        pushToElements = true;
+                                    }else{
+                                        pushToElements = false
+                                    }
+                                }
+
+                                // E:nth-last-child(n)
+                                else if( /^nth-last-child\(\d+\)$/.test( pseudoClass ) ){
+                                    if( nth_last_child( el ) == /\d+/.exec( pseudoClass ) ){
+                                        pushToElements = true;
+                                    }else{
+                                        pushToElements = false
+                                    }
+                                }
+
+                                // E:only-child
+                                else if( /^only-child$/.test( pseudoClass ) ){
+                                    if( deleteTextNodes( el.parentNode ).length == 1 ){
+                                        pushToElements = true;
+                                    }else{
+                                        pushToElements = false
+                                    }
+                                }
+
+
+                                if( typeof pushToElements != 'boolean' ){
+                                    pushToElements = true;
+                                }
+
+                                if( pushToElements ){
+
+                                    try {
+                                        var exists = false;
+                                        for( var o=0,len=elements.length;o<len;o++ ){
+                                            if( elements[o] == el ){
+                                                exists = true;
+                                                break;
+                                            }
+                                        }
+                                        if( exists ) continue;
+                                    }catch(e){}
+
+                                    elements.push( el );
+                                }
+                            }
+                            continue;
+
+                        }
+                    }
+                    return elements;
+                }
+            },
 
         fn: {
             /* jUri.fn.checkhash();
@@ -969,88 +1294,6 @@ var jUri = (function( window ){
               }
             })(),
 
-            select: function( selectors ){
-                if( document.querySelectorAll ){
-                    try {
-                        var elements = document.querySelectorAll( selectors );
-
-                        return elements;
-                    } catch(e) {
-                        return [];
-                    }
-                }else{
-
-                    var separated = selectors.split(','),selector,
-                    elements = [];
-
-                    for( var i=0,l=separated.length;i<l;i++ ){
-                        //Trim the selector
-                        selector = separated[i].replace(/^\s*/,'').replace(/\s*$/,'');
-
-                        //No childs
-                        if( !/^[^\s]\s+[^\s]$/.test( selector ) 
-                         && !/^[^\s]\s*>\s*[^\s]$/.test( selector ) ){
-
-                            var attrCondition = (selector.split('[')[1] || '').split(']')[0] || '',
-                            pseudoClass = selector.split(':')[1] || '',
-                            css2selector = (selector.split('[')[0] || '*').split(':')[0] || '*';
-
-                            //Only tag and all elements
-                            if( /^[a-zA-Z]*$/.test( css2selector ) || /^\*$/.test( css2selector ) ){
-                                var bytag = document.getElementsByTagName( css2selector ),
-                                pushToElements = false;
-
-                                for( var e=0,tl=bytag.length;e<tl;e++ ){
-                                    var el = bytag[e];
-
-                                    if( /^[^="']+$/.test( attrCondition ) ){
-                                        if( el.getAttribute( attrCondition ) ){
-                                            pushToElements = true;
-                                        }
-                                    } else if( /^[^="']+=['"][^="']*['"]$/.test( attrCondition ) ){
-                                        if( el.getAttribute( attrCondition.split('=')[0] ) == 
-                                           attrCondition.split('=')[1]){
-                                            pushToElements = true;
-                                        }
-                                    }
-
-                                     else {
-                                        pushToElements = true;
-                                    }
-
-                                    if( pushToElements ) elements.push( bytag[e] );
-                                }
-                                continue;
-                            }
-
-                            //Id with/without tagname
-                            if( /^[a-zA-Z]*#[a-zA-Z0-9_-]+$/.test( css2selector ) ){
-                                var parts = css2selector.split('#'),
-                                tagname = parts[0],
-                                id = tagname[1],
-                                elById = document.getElementsById( id ),
-                                tagname, el;
-
-                                for( var e=0,length=elById.length;e<length;e++ ){
-                                    el = elById[e];
-                                    elTag = el.localName || el.tagName.toLowerCase();
-
-                                    if( tagname != '' ){
-                                        if( elTag == tagname ){
-                                            elements.push( el );
-                                        }
-                                    } else {
-                                        elements.push( el );
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-                }
-            },
-
             css3Selectors: (function(document){
                 try{
                     document.querySelectorAll('html:nth-child(1)');
@@ -1069,7 +1312,7 @@ var jUri = (function( window ){
                     var others,last, 
                     tagname = element.localName|| element.tagName.toLowerCase(),
                     e=0, sufix,
-                    others = jUri.fn.select(selector),
+                    others = jUri.select(selector),
                     last = others.length-1;
 
                     if( others.length == 1 ){
@@ -1099,7 +1342,7 @@ var jUri = (function( window ){
                         }
                     }
 
-                    if( jUri.fn.select( selector ).length == 1 || '\v'=='v'){ 
+                    if( jUri.select( selector ).length == 1 || '\v'=='v'){ 
                         return selector;
                     }
                 },//end of checkChildhood()
@@ -1108,7 +1351,7 @@ var jUri = (function( window ){
                 selector = tagname;
 
                 //Check the tag
-                if( jUri.fn.select( selector ).length == 1 ){
+                if( jUri.select( selector ).length == 1 ){
                     return selector;
                 }
 
@@ -1116,12 +1359,12 @@ var jUri = (function( window ){
 
                 //Check the id
                 if( typeof id == 'string' && id != '' ){
-                    var others = jUri.fn.select( id ),
+                    var others = jUri.select( id ),
                     last = others.length-1;
 
                     selector += '#'+id;
 
-                    if( jUri.fn.select( selector ).length == 1 ){
+                    if( jUri.select( selector ).length == 1 ){
                         return selector;
                     }
                 }
