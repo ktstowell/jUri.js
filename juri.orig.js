@@ -1436,11 +1436,22 @@ var jUri = (function( window ){
         },
 
         toggleClass: function( cls ){
-          if( this.hasClass( cls ) ){
-            this.removeClass( cls );
-          }else{
-            this.addClass( cls );
+          var elements = this,
+          l = elements.length,
+          i;
+
+          for( i=0;i<l;i++ ){
+            var el = elements[i],
+            match = new RegExp( '(^|\\s)'+cls+'(\\s|$)' );
+
+            if( match.test(el.className) ){
+              el.className = el.className.replace(match,'');
+            }else{
+              el.className += cls;
+            }
           }
+
+          return this;
         }
       }
     },
