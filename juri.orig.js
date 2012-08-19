@@ -822,11 +822,9 @@ var jUri = (function( window ){
 
     select: function( selectors ){
         //if( !document.querySelectorAll ){
-        /*try {
+        try {
           var elements = document.querySelectorAll( selectors );
-
-          return elements;
-        } catch(e) {*/
+        } catch(e) {
             //  return [];
           //}
         //}else{
@@ -1140,11 +1138,11 @@ var jUri = (function( window ){
 
             }
           }
+        }//end catch
 
-          elements = jUri.fn.DOMprototype.createPrototype( elements );
+        elements = jUri.fn.DOMprototype.createPrototype( elements );
 
-          return elements;
-        //}
+        return elements;
       },
 
     fn: {
