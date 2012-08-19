@@ -1,3 +1,6 @@
+## 0.4
+* **Feature**: DOM functions for jUri.select: .hasClass, .removeClass, .addClass, .toggleClass
+
 ## 0.4.3
 * **Feature**: .ajax() can now send forms using POST
 * **Bugfix**: .ajax() returns the xmlhttp object without sending it if the argument is a string (URL)

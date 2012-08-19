@@ -53,6 +53,11 @@
 		console.log(
 			jUri.select('.foo[title*="div"]')
 		);
+
+		console.log('.foo.bar')
+		console.log(
+			jUri.select('.foo.bar')
+		);
 		
 		console.log('[lang|="en"]')
 		console.log(
@@ -74,9 +79,9 @@
 			jUri.select('p:nth-child(3)')
 		);
 		
-		console.log('p:nth-last-child(4)')
+		console.log('p:nth-last-child(5)')
 		console.log(
-			jUri.select('p:nth-last-child(4)')
+			jUri.select('p:nth-last-child(5)')
 		);
 	});
 	</script>
@@ -95,6 +100,8 @@
 	<p title="My 4th paragraph">Paragraph with a title attribute</p>
 
 	<div class="foo" title="Example div">First div, matching it with 'div[title^="E"]'</div>
+
+	<div class="foo bar">Div with two classes</div>
 
 	<div title="Example div2">Second div, matching it with 'div[title$="2"]'</div>
 
