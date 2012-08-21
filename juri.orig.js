@@ -312,8 +312,8 @@ var jUri = (function( window ){
 
       if( 'onhashchange' in window ){
         this.fn.addEvent('hashchange',window,function(e){
-          e.oldHash = e.oldUrl.split('#')[1] || '#';
-          e.newHash = e.newUrl.split('#')[1] || '#';
+          e.oldHash = e.oldURL.split('#')[1] || '#';
+          e.newHash = e.newURL.split('#')[1] || '#';
           e.newLoc = window.location;
           callback(e);
         });
@@ -1609,8 +1609,8 @@ var jUri = (function( window ){
 hashChangeEvent = function( prevHash, newHash ){
   this.oldHash = prevHash || "#";
   this.newHash = newHash || "#";
-  this.oldUrl = history.previous || "";
-  this.newUrl = jUri.href() || "";
+  this.oldURL = history.previous || "";
+  this.newURL = jUri.href() || "";
   this.newLoc = window.location;
 };
 
