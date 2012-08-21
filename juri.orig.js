@@ -1,4 +1,4 @@
-/*  jUri v0.4
+/*  jUri v0.4.4
   Mini-javascript library for handling url functions
   jUri by Enric Florit is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
   You can read the license at http://creativecommons.org/licenses/by-sa/3.0/
@@ -309,8 +309,17 @@ var jUri = (function( window ){
         //IE6 standards compliant mode
         scroll = document.documentElement.scrollTop;
       }
-      
-      this.fn.checkhash( this.hash(), scroll, callback );
+
+      if( 'onhashchange' in window ){
+        this.fn.addEvent('hashchange',window,function(e){
+          e.oldHash = e.oldUrl.split('#')[1] || '#';
+          e.newHash = e.newUrl.split('#')[1] || '#';
+          e.newLoc = window.location;
+          callback(e);
+        });
+      }else{
+        this.fn.checkhash( this.hash(), scroll, callback );
+      }
     },
 
 

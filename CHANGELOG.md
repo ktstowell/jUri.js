@@ -1,5 +1,6 @@
-## 0.4
+## 0.4.4
 * **Feature**: DOM functions for jUri.select: .hasClass, .removeClass, .addClass, .toggleClass
+* **Feature**: jUri.hashchange uses native support if the browser has it
 
 ## 0.4.3
 * **Feature**: .ajax() can now send forms using POST
